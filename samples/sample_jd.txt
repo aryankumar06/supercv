@@ -1,0 +1,20 @@
+Senior Full-Stack Engineer (React / TypeScript / Node.js)
+Company: CloudScale AI
+Location: Remote (US)
+
+About the Role:
+CloudScale AI is seeking an experienced Senior Full-Stack Engineer to architect and scale our enterprise AI management platform. You will lead frontend modernization initiatives, design robust GraphQL and RESTful backend microservices, and improve system performance for over 500,000 active enterprise users.
+
+Requirements & Qualifications:
+- 5+ years of software engineering experience with strong focus on modern web applications.
+- Deep expertise in TypeScript, React, Next.js, and state management (Zustand / Redux Toolkit).
+- Strong proficiency in Node.js, Express, PostgreSQL, and GraphQL.
+- Hands-on experience with cloud infrastructure (AWS / GCP), Docker containerization, and CI/CD pipelines.
+- Proven track record of optimizing Largest Contentful Paint (LCP) and web performance metrics.
+- Experience with automated testing suites (Jest, Playwright, React Testing Library).
+- Demonstrated experience mentoring junior engineers and conducting comprehensive code reviews.
+- Bachelor's degree in Computer Science or equivalent practical experience.
+
+Nice to Have:
+- Experience with LLM integrations, OpenAI / Gemini APIs, or RAG architectures.
+- Familiarity with TailwindCSS and modern design systems.

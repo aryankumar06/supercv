@@ -1,0 +1,29 @@
+Alex Morgan
+Email: alex.morgan@example.com | Phone: (555) 234-5678 | Location: San Francisco, CA
+LinkedIn: linkedin.com/in/alexmorgan | GitHub: github.com/alexmorgan
+
+PROFESSIONAL SUMMARY
+Passionate Frontend Developer with 3+ years of experience building web applications with JavaScript, HTML, and CSS. Experienced in building responsive UI components and collaborating in agile teams.
+
+CORE SKILLS
+- Languages & Libraries: JavaScript (ES6+), React, HTML5, CSS3, Redux
+- Tools: Git, Webpack, npm, VS Code, Figma
+- Methodologies: Agile/Scrum, Code Reviews
+
+PROFESSIONAL EXPERIENCE
+
+Frontend Developer | TechFlow Solutions | 06/2022 – Present
+- Built and maintained user-facing features for the company's core SaaS product using React and JavaScript.
+- Collaborated with UI/UX designers to translate Figma mockups into reusable component libraries.
+- Improved application load times by optimizing assets and code splitting.
+- Fixed bugs and participated in sprint planning and daily standup meetings.
+- Worked with REST APIs to fetch and display dynamic customer dashboard data.
+
+Junior Web Developer | PixelCraft Studio | 08/2021 – 05/2022
+- Developed responsive landing pages and marketing websites using HTML, CSS, and vanilla JavaScript.
+- Maintained cross-browser compatibility across Chrome, Safari, and Firefox.
+- Assisted senior engineers in debugging frontend issues and writing unit tests.
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of California, Davis (Graduated: 05/2021)
