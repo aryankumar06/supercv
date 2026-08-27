@@ -33,7 +33,7 @@ ${roast.toughLoveFixes.map((f, i) => `${i + 1}. ${f}`).join('\n')}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-gray-950 text-gray-100 rounded-2xl border border-red-500/30 shadow-2xl shadow-red-950/60 p-6 md:p-8 space-y-6">
         {/* Close Button */}
         <button
