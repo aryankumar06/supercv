@@ -110,7 +110,7 @@ function App() {
             {/* Social Links */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <a
-                href="https://linkedin.com/in/aryankumar06"
+                href="https://www.linkedin.com/in/aryan-kumarr-5450491ba/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm hover:border-blue-500 hover:text-blue-600 hover:shadow-md transition-all text-xs font-semibold text-gray-700"
@@ -130,7 +130,7 @@ function App() {
               </a>
 
               <a
-                href="https://instagram.com/aryankumar06"
+                href="https://instagram.com/aaryan_yarr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm hover:border-pink-500 hover:text-pink-600 hover:shadow-md transition-all text-xs font-semibold text-gray-700"
