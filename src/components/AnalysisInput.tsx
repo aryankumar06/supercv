@@ -11,8 +11,11 @@ import {
   Eye,
   FileCode,
   Check,
+  Flame,
 } from 'lucide-react';
 import { parseDocument, type ParsedDocumentResult } from '../utils/documentParser';
+import { roastResume, type ResumeRoastResult } from '../utils/resumeRoaster';
+import { ResumeRoastModal } from './ResumeRoastModal';
 
 interface AnalysisInputProps {
   onAnalyze: (resumeText: string, jobDescription: string) => void;
@@ -35,6 +38,20 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
   const [resumeMetadata, setResumeMetadata] = useState<ParsedDocumentResult | null>(null);
   const [jdMetadata, setJdMetadata] = useState<ParsedDocumentResult | null>(null);
   const [showRawResumeText, setShowRawResumeText] = useState(false);
+
+  const [roastResult, setRoastResult] = useState<ResumeRoastResult | null>(null);
+  const [isRoastModalOpen, setIsRoastModalOpen] = useState(false);
+
+  const handleRoast = () => {
+    if (resumeText.trim().length < 50) {
+      setError('Please upload or paste your resume first (at least 50 characters) to roast.');
+      return;
+    }
+    setError('');
+    const roast = roastResume(resumeText, jobDescription);
+    setRoastResult(roast);
+    setIsRoastModalOpen(true);
+  };
 
   const handleFileProcess = async (file: File, target: 'resume' | 'jd') => {
     setError('');
@@ -441,7 +458,7 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-4">
         <button
           onClick={handleClear}
           disabled={isAnalyzing}
@@ -449,6 +466,17 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         >
           Clear All
         </button>
+
+        <button
+          type="button"
+          onClick={handleRoast}
+          disabled={resumeText.trim().length < 50 || isAnalyzing}
+          className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-red-600 to-rose-600 hover:from-orange-500 hover:to-rose-500 rounded-xl transition-all shadow-md hover:shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Flame className="w-4 h-4 text-amber-300 animate-pulse" />
+          Roast My Resume 🔥
+        </button>
+
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
@@ -468,10 +496,17 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         </button>
       </div>
 
+      {/* Resume Roast Modal */}
+      <ResumeRoastModal
+        roast={roastResult}
+        isOpen={isRoastModalOpen}
+        onClose={() => setIsRoastModalOpen(false)}
+        onAutoEnhance={canSubmit ? handleSubmit : undefined}
+      />
+
       <div className="text-center text-xs text-gray-500 max-w-2xl mx-auto">
         <p>
-          Drop your PDF or Word resume to extract the plain-text structure and inspect detected ATS sections.
-          Scoring is executed across 5 weighted categories with automatic Phase 2 enhancement if under 70%.
+          Drop your PDF or Word resume to extract plain-text, inspect ATS structure, get brutally honest roast feedback, or run full ATS scoring with automatic enhancement under 70%.
         </p>
       </div>
     </div>

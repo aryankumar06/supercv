@@ -10,12 +10,17 @@ import {
   Check,
   ArrowRight,
   Lightbulb,
+  Flame,
 } from 'lucide-react';
 import type { EnhancementChange, AnalysisResult } from '../lib/supabase';
+import { roastResume, type ResumeRoastResult } from '../utils/resumeRoaster';
+import { ResumeRoastModal } from './ResumeRoastModal';
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
   onReset: () => void;
+  resumeText?: string;
+  jobDescription?: string;
 }
 
 const CATEGORY_META = [
@@ -26,9 +31,19 @@ const CATEGORY_META = [
   { key: 'structure_completeness' as const, label: 'Structure & Completeness', weight: '10%' },
 ];
 
-export function AnalysisResults({ result, onReset }: AnalysisResultsProps) {
+export function AnalysisResults({ result, onReset, resumeText, jobDescription }: AnalysisResultsProps) {
   const [copied, setCopied] = useState(false);
   const [showEnhanced, setShowEnhanced] = useState(false);
+  const [isRoastModalOpen, setIsRoastModalOpen] = useState(false);
+  const [roastResult, setRoastResult] = useState<ResumeRoastResult | null>(null);
+
+  const handleOpenRoast = () => {
+    const textToRoast = showEnhanced && result.enhanced_resume ? result.enhanced_resume : resumeText || '';
+    if (!textToRoast) return;
+    const roast = roastResume(textToRoast, jobDescription);
+    setRoastResult(roast);
+    setIsRoastModalOpen(true);
+  };
 
   const score = showEnhanced && result.enhanced_score ? result.enhanced_score : result.ats_score;
   const verdict = showEnhanced && result.enhanced_score
@@ -97,12 +112,21 @@ export function AnalysisResults({ result, onReset }: AnalysisResultsProps) {
             {showEnhanced ? 'Enhanced version' : 'Original resume'} analysis
           </p>
         </div>
-        <button
-          onClick={onReset}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
-        >
-          New Analysis
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleOpenRoast}
+            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-500 hover:to-rose-500 text-white rounded-lg transition-all text-sm font-semibold shadow-sm hover:shadow-md shadow-red-500/20"
+          >
+            <Flame className="w-4 h-4 text-amber-300 animate-pulse" />
+            Roast Mode 🔥
+          </button>
+          <button
+            onClick={onReset}
+            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+          >
+            New Analysis
+          </button>
+        </div>
       </div>
 
       {/* Score Card */}
@@ -405,6 +429,13 @@ export function AnalysisResults({ result, onReset }: AnalysisResultsProps) {
           <li>Quantify every achievement with specific metrics (% improvement, $ impact, team size)</li>
         </ul>
       </div>
+
+      {/* Roast Modal */}
+      <ResumeRoastModal
+        roast={roastResult}
+        isOpen={isRoastModalOpen}
+        onClose={() => setIsRoastModalOpen(false)}
+      />
     </div>
   );
 }

@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "ats": "tsx src/cli/index.ts",
     "ats:interactive": "tsx src/cli/index.ts -i",
-    "parse-pdf": "tsx src/cli/parsePdf.ts"
+    "parse-pdf": "tsx src/cli/parsePdf.ts",
+    "roast": "tsx src/cli/roast.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

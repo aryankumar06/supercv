@@ -9,9 +9,13 @@ import type { AnalysisResult } from './lib/supabase';
 function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [currentResume, setCurrentResume] = useState('');
+  const [currentJd, setCurrentJd] = useState('');
 
   const handleAnalyze = async (resumeText: string, jobDescription: string) => {
     setIsAnalyzing(true);
+    setCurrentResume(resumeText);
+    setCurrentJd(jobDescription);
 
     try {
       const analysis = analyzeResume(resumeText, jobDescription);
@@ -77,7 +81,12 @@ function App() {
           {!result ? (
             <AnalysisInput onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
           ) : (
-            <AnalysisResults result={result} onReset={handleReset} />
+            <AnalysisResults
+              result={result}
+              onReset={handleReset}
+              resumeText={currentResume}
+              jobDescription={currentJd}
+            />
           )}
         </main>
 

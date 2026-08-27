@@ -1,6 +1,6 @@
 # supercv 📄✨
 
-> **SuperCV** — AI-Powered ATS Resume Compatibility Checker & Auto-Enhancement Platform with **Client-Side PDF-to-TXT Parsing** & **Local Transformers (No API Keys Required)**.
+> **SuperCV** — AI-Powered ATS Resume Compatibility Checker, Auto-Enhancement Platform, **AI Resume Roast 🔥**, & **Client-Side PDF-to-TXT Parsing** using **Local Transformers (No API Keys Required)**.
 
 SuperCV scores candidate resumes against target job descriptions using an authentic 5-category Applicant Tracking System (ATS) rubric modeled after industry systems (Workday, Taleo, Greenhouse, iCIMS, and Lever). If the compatibility score falls below **70%**, SuperCV automatically triggers a structured Phase 2 rewrite to optimize presentation, keyword alignment, and impact without hallucinating qualifications.
 
@@ -8,6 +8,10 @@ SuperCV scores candidate resumes against target job descriptions using an authen
 
 ## 🌟 Key Features
 
+- 🔥 **AI Resume Roast (Savage & Constructive Recruiter Mode)**:
+  - Unfiltered hiring manager critique with humorous, pinpoint burns on buzzword soup, ghost metrics, passive duties, and formatting sins.
+  - Generates a **Roast Heat Level (0–100)**, **Recruiter 6-Second First Impression**, and **Tough Love Actionable Fixes**.
+  - Available via the prominent Web UI button and the `npm run roast` CLI tool.
 - 📑 **Instant PDF / Word to TXT Structure Parser**:
   - Automatically extracts clean, ATS-parseable plain text from **Adobe PDF (`.pdf`)** and **Microsoft Word (`.docx`)** directly in the browser or terminal.
   - **Structure Inspector**: Real-time section detection badges (Contact Info, Summary, Skills, Experience, Education, Projects, Certifications) and word/page counts.
@@ -27,14 +31,8 @@ SuperCV scores candidate resumes against target job descriptions using an authen
   - Injects `[ADD METRIC]` placeholders rather than hallucinating metrics.
   - Generates a "What Changed & Why" table, re-scores the enhanced resume, and lists remaining candidate action items.
 - 💻 **Dual Interfaces**:
-  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, PDF parsing flow, and Supabase history.
+  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, PDF parsing flow, Resume Roast modal, and Supabase history.
   - **Power-User CLI**: Terminal interface with multi-file ingestion, streaming outputs, and Markdown/JSON export capabilities.
-- 🤖 **Universal Multi-Provider Support**:
-  - **Local Transformers** (Default, zero keys required)
-  - **Google Gemini**: `gemini-2.5-flash`, `gemini-2.5-pro`
-  - **OpenAI**: `gpt-4o`, `gpt-4o-mini`
-  - **Anthropic Claude**: `claude-3-7-sonnet`, `claude-3-5-sonnet`
-  - **Local Ollama**: `llama3.2`, `llama3.3`, `deepseek-r1`
 
 ---
 
@@ -51,16 +49,17 @@ cd supercv
 npm install
 ```
 
-### 3. Parse Any PDF Resume to Structured Plain Text
+### 3. Roast Your Resume 🔥
 ```bash
-npm run parse-pdf -- path/to/resume.pdf
+npm run roast -- samples/sample_resume.txt
 ```
-Or save the extracted TXT to a file:
+
+### 4. Parse Any PDF Resume to Structured Plain Text
 ```bash
 npm run parse-pdf -- path/to/resume.pdf -o extracted_resume.txt
 ```
 
-### 4. Run ATS Compatibility Analysis (Keyless / Local Transformer)
+### 5. Run ATS Compatibility Analysis (Keyless / Local Transformer)
 ```bash
 npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 ```
@@ -69,7 +68,7 @@ npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 
 ## 🖥️ Running the Web Application
 
-To launch the web interface with drag-and-drop PDF-to-TXT parsing:
+To launch the web interface with drag-and-drop PDF-to-TXT parsing and the Roast feature:
 
 ```bash
 npm run dev
@@ -79,9 +78,21 @@ Open your browser at `http://localhost:5173`.
 
 ---
 
-## ⌨️ CLI Commands & Usage
+## ⌨️ CLI Commands Reference
 
-### 1. PDF / DOCX to TXT Parser (`parse-pdf`)
+### 1. AI Resume Roast (`roast`)
+```bash
+# Roast a resume
+npm run roast -- /path/to/resume.pdf
+
+# Roast against a target job description
+npm run roast -- /path/to/resume.pdf -j /path/to/job_description.txt
+
+# JSON Output
+npm run roast -- /path/to/resume.pdf --json
+```
+
+### 2. PDF / DOCX to TXT Parser (`parse-pdf`)
 ```bash
 # Terminal overview with detected sections & contact info
 npm run parse-pdf -- /path/to/resume.pdf
@@ -93,7 +104,7 @@ npm run parse-pdf -- /path/to/resume.pdf -o resume_plain.txt
 npm run parse-pdf -- /path/to/resume.pdf --json
 ```
 
-### 2. ATS Compatibility Scoring & Auto-Enhancement (`ats`)
+### 3. ATS Compatibility Scoring & Auto-Enhancement (`ats`)
 ```bash
 # Analyze PDF Resume against Job Description
 npm run ats -- -r /path/to/resume.pdf -j /path/to/job_description.txt
@@ -115,23 +126,6 @@ npm run ats:interactive
 
 ---
 
-## 📋 CLI Flags Reference
-
-| Command | Flag | Shorthand | Description |
-|---|---|---|---|
-| `ats` | `--resume <path>` | `-r` | Path to resume file (`.pdf`, `.docx`, `.txt`, `.md`) |
-| `ats` | `--jd <path>` | `-j` | Path to job description file (`.txt`, `.md`, `.pdf`) |
-| `ats` | `--provider <name>` | `-p` | Provider: `transformer` (default/free), `gemini`, `openai`, `claude`, `ollama` |
-| `ats` | `--output <path>` | `-o` | Export complete Markdown analysis report |
-| `ats` | `--json <path>` | | Export structured report as JSON |
-| `ats` | `--save-enhanced <path>` | | Export enhanced plain-text resume |
-| `ats` | `--force-enhance` | `-f` | Force Phase 2 rewrite even if score is ≥70% |
-| `ats` | `--interactive` | `-i` | Run interactive wizard mode |
-| `parse-pdf` | `-o, --output <path>` | | Save extracted plain text to file |
-| `parse-pdf` | `--json` | | Output parsed structure & detected sections as JSON |
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -150,16 +144,19 @@ supercv/
 │   │   ├── llmClient.ts       # Multi-provider client (Transformers + LLMs)
 │   │   ├── parsePdf.ts        # PDF to TXT CLI tool & structure inspector
 │   │   ├── prompt.ts          # ATS System prompt & Phase templates
+│   │   ├── roast.ts           # Standalone Resume Roast CLI tool
 │   │   └── transformerEngine.ts # 100% Local ONNX Transformer Engine
 │   ├── components/
-│   │   ├── AnalysisInput.tsx   # Web resume & JD upload/paste with PDF flow
-│   │   └── AnalysisResults.tsx # Web score visualizer & report renderer
+│   │   ├── AnalysisInput.tsx   # Resume & JD upload/paste, PDF flow, Roast button
+│   │   ├── AnalysisResults.tsx # Score visualizer, report renderer, Roast mode
+│   │   └── ResumeRoastModal.tsx# Fiery Roast UI with burns & tough love fixes
 │   ├── lib/
 │   │   └── supabase.ts        # Database client & TypeScript definitions
 │   ├── utils/
 │   │   ├── atsAnalyzer.ts     # Client-side heuristic analyzer
 │   │   ├── documentParser.ts  # Browser-side PDF.js & Word text extractor
-│   │   └── keywordExtractor.ts# Rule-based NLP extraction
+│   │   ├── keywordExtractor.ts# Rule-based NLP extraction
+│   │   └── resumeRoaster.ts   # Savage & constructive roast engine
 │   ├── App.tsx                # Main React App
 │   ├── index.css              # Tailwind styling
 │   └── main.tsx               # React DOM entrypoint
