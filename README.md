@@ -167,6 +167,19 @@ supercv/
 
 ---
 
+## 👨‍💻 Get in Touch with Developer
+
+**Aryan Kumar** — Developer & Creator of SuperCV.
+
+Feel free to connect, ask questions, report issues, or collaborate:
+
+- 💼 **LinkedIn**: [linkedin.com/in/aryankumar06](https://linkedin.com/in/aryankumar06)
+- 🐙 **GitHub**: [@aryankumar06](https://github.com/aryankumar06)
+- 📸 **Instagram**: [@aryankumar06](https://instagram.com/aryankumar06)
+- ✉️ **Email**: [workingforaryan@gmail.com](mailto:workingforaryan@gmail.com)
+
+---
+
 ## 📜 License
 
-MIT License.
+MIT License. Feel free to use and customize for your own projects!
