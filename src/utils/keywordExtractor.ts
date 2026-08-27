@@ -7,6 +7,7 @@ const HARD_SKILL_PATTERNS: { pattern: RegExp; normalized: string }[] = [
   { pattern: /\btypescript|ts\b/i, normalized: 'TypeScript' },
   { pattern: /\bpython\b/i, normalized: 'Python' },
   { pattern: /\bjava\b/i, normalized: 'Java' },
+  { pattern: /\bdart\b/i, normalized: 'Dart' },
   { pattern: /\bc\+\+\b/i, normalized: 'C++' },
   { pattern: /\bc#\b/i, normalized: 'C#' },
   { pattern: /\bgo(lang)?\b/i, normalized: 'Go' },
@@ -18,14 +19,17 @@ const HARD_SKILL_PATTERNS: { pattern: RegExp; normalized: string }[] = [
   { pattern: /\bscala\b/i, normalized: 'Scala' },
   { pattern: /\bsql\b/i, normalized: 'SQL' },
   { pattern: /\bnosql\b/i, normalized: 'NoSQL' },
-  // Frontend frameworks
+  // Frontend & Mobile frameworks
   { pattern: /\breact(\.js)?\b/i, normalized: 'React' },
+  { pattern: /\bflutter\b/i, normalized: 'Flutter' },
+  { pattern: /\breact native\b/i, normalized: 'React Native' },
   { pattern: /\bangular(\.js)?\b/i, normalized: 'Angular' },
   { pattern: /\bvue(\.js)?\b/i, normalized: 'Vue' },
   { pattern: /\bsvelte\b/i, normalized: 'Svelte' },
   { pattern: /\bnext(\.js)?\b/i, normalized: 'Next.js' },
   { pattern: /\bnuxt\b/i, normalized: 'Nuxt' },
   { pattern: /\bredux\b/i, normalized: 'Redux' },
+  { pattern: /\btailwind(\s?css)?\b/i, normalized: 'Tailwind CSS' },
   { pattern: /\bgraphql\b/i, normalized: 'GraphQL' },
   { pattern: /\bapollo\b/i, normalized: 'Apollo' },
   // Backend frameworks
@@ -50,16 +54,25 @@ const HARD_SKILL_PATTERNS: { pattern: RegExp; normalized: string }[] = [
   { pattern: /\bci\/cd\b/i, normalized: 'CI/CD' },
   { pattern: /\bserverless\b/i, normalized: 'Serverless' },
   { pattern: /\blambda\b/i, normalized: 'Lambda' },
-  // Databases
+  // Databases & BaaS
   { pattern: /\bpostgresql|postgres\b/i, normalized: 'PostgreSQL' },
   { pattern: /\bmysql\b/i, normalized: 'MySQL' },
   { pattern: /\bmongodb|mongo\b/i, normalized: 'MongoDB' },
+  { pattern: /\bsupabase\b/i, normalized: 'Supabase' },
+  { pattern: /\bfirebase\b/i, normalized: 'Firebase' },
+  { pattern: /\bprisma(\s?orm)?\b/i, normalized: 'Prisma' },
   { pattern: /\bredis\b/i, normalized: 'Redis' },
   { pattern: /\belasticsearch\b/i, normalized: 'Elasticsearch' },
   { pattern: /\bdynamodb\b/i, normalized: 'DynamoDB' },
   { pattern: /\bsnowflake\b/i, normalized: 'Snowflake' },
+  { pattern: /\bsqlite\b/i, normalized: 'SQLite' },
+  { pattern: /\blancedb|vector db|pinecone|qdrant|chroma\b/i, normalized: 'Vector Database' },
   { pattern: /\bcassandra\b/i, normalized: 'Cassandra' },
-  // Data / ML
+  // Data / AI / ML
+  { pattern: /\brag|retrieval augmented generation\b/i, normalized: 'RAG' },
+  { pattern: /\bllm|large language model\b/i, normalized: 'LLMs' },
+  { pattern: /\bembeddings?|semantic search\b/i, normalized: 'Embeddings' },
+  { pattern: /\bmcp|model context protocol\b/i, normalized: 'MCP' },
   { pattern: /\bpandas\b/i, normalized: 'pandas' },
   { pattern: /\bnumpy\b/i, normalized: 'NumPy' },
   { pattern: /\btensorflow\b/i, normalized: 'TensorFlow' },
@@ -76,11 +89,10 @@ const HARD_SKILL_PATTERNS: { pattern: RegExp; normalized: string }[] = [
   { pattern: /\bspark\b/i, normalized: 'Spark' },
   { pattern: /\bairflow\b/i, normalized: 'Airflow' },
   { pattern: /\bhadoop\b/i, normalized: 'Hadoop' },
-  // Tools / methodologies
+  // Tools / methodologies / testing
   { pattern: /\bgit\b/i, normalized: 'Git' },
   { pattern: /\bjira\b/i, normalized: 'Jira' },
-  { pattern: /\bconfluence\b/i, normalized: 'Confluence' },
-  { pattern: /\bslack\b/i, normalized: 'Slack' },
+  { pattern: /\blinear\b/i, normalized: 'Linear' },
   { pattern: /\bfigma\b/i, normalized: 'Figma' },
   { pattern: /\bagile\b/i, normalized: 'Agile' },
   { pattern: /\bscrum\b/i, normalized: 'Scrum' },
@@ -89,6 +101,8 @@ const HARD_SKILL_PATTERNS: { pattern: RegExp; normalized: string }[] = [
   { pattern: /\bmicroservices\b/i, normalized: 'Microservices' },
   { pattern: /\btdd\b/i, normalized: 'TDD' },
   { pattern: /\bunit testing\b/i, normalized: 'Unit Testing' },
+  { pattern: /\bcypress\b/i, normalized: 'Cypress' },
+  { pattern: /\ba\/b testing\b/i, normalized: 'A/B Testing' },
   // Certifications
   { pattern: /\bpmp\b/i, normalized: 'PMP' },
   { pattern: /\baws certified\b/i, normalized: 'AWS Certified' },

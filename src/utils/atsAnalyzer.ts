@@ -202,10 +202,10 @@ function scoreTitleSeniority(resumeText: string, jobDescription: string): TitleR
   let candidateSeniority = 'mid';
   if (titleLines.length > 0) {
     const allTitles = titleLines.join(' ').toLowerCase();
-    if (/\b(staff|principal|head of|director)\b/i.test(allTitles)) candidateSeniority = 'executive';
-    else if (/\b(senior|sr\.?)\b/i.test(allTitles)) candidateSeniority = 'senior';
-    else if (/\b(lead)\b/i.test(allTitles)) candidateSeniority = 'lead';
-    else if (/\b(junior|jr\.?|associate|entry)\b/i.test(allTitles)) candidateSeniority = 'junior';
+    if (/\b(staff|principal|head of|director|vp)\b/i.test(allTitles)) candidateSeniority = 'executive';
+    else if (/\b(senior|sr\.?|founding|founder|architect|lead engineer|tech lead)\b/i.test(allTitles)) candidateSeniority = 'senior';
+    else if (/\b(lead|product engineer|sole engineer)\b/i.test(allTitles)) candidateSeniority = 'lead';
+    else if (/\b(junior|jr\.?|associate|entry|intern)\b/i.test(allTitles)) candidateSeniority = 'junior';
   }
 
   // Estimate years of experience from dates in resume
