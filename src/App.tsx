@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { ScanSearch, Github, Linkedin, Instagram, Mail, Heart } from 'lucide-react';
+import { ScanSearch, Github, Linkedin, Instagram, Mail, Heart, Building2, FileCheck } from 'lucide-react';
 import { AnalysisInput } from './components/AnalysisInput';
 import { AnalysisResults } from './components/AnalysisResults';
+import { TierScreenerView } from './components/TierScreenerView';
 import { analyzeResume } from './utils/atsAnalyzer';
 import { supabase } from './lib/supabase';
 import type { AnalysisResult } from './lib/supabase';
 
 function App() {
+  const [activeView, setActiveView] = useState<'ats' | 'tierScreener'>('ats');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [currentResume, setCurrentResume] = useState('');
@@ -59,36 +61,75 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-blue-50/30">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-                <ScanSearch className="w-7 h-7 text-white" />
-              </div>
-              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">
-                ATS Resume Optimizer
-              </h1>
-            </div>
+      <div className="container mx-auto px-4 py-6 md:py-8">
+        {/* Main Navigation Bar */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="inline-flex items-center p-1.5 rounded-2xl bg-white border border-gray-200 shadow-sm gap-1">
+            <button
+              onClick={() => setActiveView('ats')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all ${
+                activeView === 'ats'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <FileCheck className="w-4 h-4" />
+              ATS Resume Optimizer
+            </button>
+            <button
+              onClick={() => setActiveView('tierScreener')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all ${
+                activeView === 'tierScreener'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              FAANG vs. Startup Screener
+              <span className="px-1.5 py-0.5 text-[10px] uppercase font-black bg-amber-400 text-amber-950 rounded-md">
+                New
+              </span>
+            </button>
           </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Paste your resume and a job description to get a precise ATS compatibility
-            score with keyword matching, formatting checks, and automatic enhancement.
-          </p>
-        </header>
+        </div>
 
-        <main>
-          {!result ? (
-            <AnalysisInput onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-          ) : (
-            <AnalysisResults
-              result={result}
-              onReset={handleReset}
-              resumeText={currentResume}
-              jobDescription={currentJd}
-            />
-          )}
-        </main>
+        {activeView === 'ats' ? (
+          <>
+            <header className="text-center mb-12">
+              <div className="flex items-center justify-center mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                    <ScanSearch className="w-7 h-7 text-white" />
+                  </div>
+                  <h1 className="text-4xl font-bold text-gray-800 tracking-tight">
+                    ATS Resume Optimizer
+                  </h1>
+                </div>
+              </div>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Paste your resume and a job description to get a precise ATS compatibility
+                score with keyword matching, formatting checks, and automatic enhancement.
+              </p>
+            </header>
+
+            <main>
+              {!result ? (
+                <AnalysisInput onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+              ) : (
+                <AnalysisResults
+                  result={result}
+                  onReset={handleReset}
+                  resumeText={currentResume}
+                  jobDescription={currentJd}
+                />
+              )}
+            </main>
+          </>
+        ) : (
+          <main>
+            <TierScreenerView />
+          </main>
+        )}
 
         {/* Get in Touch with Developer */}
         <footer className="mt-20 border-t border-gray-200/80 pt-12 pb-8">

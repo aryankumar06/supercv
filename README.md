@@ -6,6 +6,7 @@ SuperCV is an ATS (Applicant Tracking System) resume analyzer, auto-enhancer, gr
 
 ## Features
 
+- **FAANG vs. Startup Resume Screener**: Evaluates resumes against the **Top 20 Big Tech Focus Areas** (pedigree, scale, system design, latency metrics, L4-L6 calibration) vs. **Top 20 Startup Focus Areas** (generalist breadth, 0-to-1 velocity, business revenue impact, founder-adjacent signals) with personalized strategic next-step roadmaps.
 - **5-Category ATS Scoring Rubric**:
   - Keyword & Skills Match (35%)
   - Title & Seniority Alignment (15%)
@@ -17,7 +18,7 @@ SuperCV is an ATS (Applicant Tracking System) resume analyzer, auto-enhancer, gr
 - **Client-Side PDF/Word to TXT Parsing**: Extracts plain text from `.pdf` and `.docx` files directly in the browser or terminal.
 - **AI Grammar & Spell Checker**: Detects typos, passive voice, tense inconsistencies, and tech casing (`reactjs` -> `React`) with one-click auto-correction.
 - **Resume Roast Mode**: Generates blunt, constructive hiring-manager feedback with category breakdowns and action steps.
-- **Dual Interfaces**: Web interface (React + Tailwind) and power-user CLI tool.
+- **Dual Interfaces**: Web interface (React + Tailwind) with dedicated subpage tabs and power-user CLI tool.
 
 ---
 
@@ -80,7 +81,20 @@ npm run grammar -- path/to/resume.pdf -o corrected_resume.txt
 npm run grammar -- path/to/resume.pdf --json
 ```
 
-### 3. Resume Roast
+### 3. FAANG vs. Startup Resume Screener
+```bash
+# Dual-tier benchmark (FAANG and Startup audit)
+npm run screen -- path/to/resume.pdf
+
+# Filter by target tier
+npm run screen -- path/to/resume.pdf -t faang
+npm run screen -- path/to/resume.pdf -t startup
+
+# JSON output
+npm run screen -- path/to/resume.pdf --json
+```
+
+### 4. Resume Roast
 ```bash
 # Roast a resume
 npm run roast -- path/to/resume.pdf
@@ -89,7 +103,7 @@ npm run roast -- path/to/resume.pdf
 npm run roast -- path/to/resume.pdf -j path/to/job_description.txt
 ```
 
-### 4. PDF to TXT Parser
+### 5. PDF to TXT Parser
 ```bash
 # Inspect detected sections and extracted text
 npm run parse-pdf -- path/to/resume.pdf
