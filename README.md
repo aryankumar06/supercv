@@ -1,182 +1,162 @@
-# supercv 📄✨
+# SuperCV
 
-> **SuperCV** — AI-Powered ATS Resume Compatibility Checker, Auto-Enhancement Platform, **AI Resume Roast 🔥**, **Grammar & Spell Auto-Corrector ✨**, & **Client-Side PDF-to-TXT Parsing** using **Local Transformers (No API Keys Required)**.
-
-SuperCV scores candidate resumes against target job descriptions using an authentic 5-category Applicant Tracking System (ATS) rubric modeled after industry systems (Workday, Taleo, Greenhouse, iCIMS, and Lever). If the compatibility score falls below **70%**, SuperCV automatically triggers a structured Phase 2 rewrite to optimize presentation, keyword alignment, and impact without hallucinating qualifications.
+SuperCV is an ATS (Applicant Tracking System) resume analyzer, auto-enhancer, grammar checker, and resume critique tool. It scores resumes against job descriptions using a 5-category weighted rubric modeled after systems like Workday, Taleo, Greenhouse, iCIMS, and Lever. When a score falls below 70%, it automatically rewrites and optimizes the resume.
 
 ---
 
-## 🌟 Key Features
+## Features
 
-- ✨ **AI Grammar & Spell Checker with One-Click Auto-Correction**:
-  - Automatically identifies typos, misspellings, passive voice phrasing ("was responsible for"), inconsistent tenses, punctuation errors, and tech acronym casing (`reactjs` -> `React`, `nodejs` -> `Node.js`, `aws` -> `AWS`).
-  - Generates a **Grammar Health Score & Grade (A+ to F)**.
-  - One-click **"Apply All Corrections"** button to update your resume instantly.
-- 🔥 **AI Resume Roast (Savage & Constructive Recruiter Mode)**:
-  - Unfiltered hiring manager critique with humorous, pinpoint burns on buzzword soup, ghost metrics, passive duties, and formatting sins.
-  - Generates a **Roast Heat Level (0–100)**, **Recruiter 6-Second First Impression**, and **Tough Love Actionable Fixes**.
-- 📑 **Instant PDF / Word to TXT Structure Parser**:
-  - Automatically extracts clean, ATS-parseable plain text from **Adobe PDF (`.pdf`)** and **Microsoft Word (`.docx`)** directly in the browser or terminal.
-  - **Structure Inspector**: Real-time section detection badges (Contact Info, Summary, Skills, Experience, Education, Projects, Certifications) and word/page counts.
-  - **Live Text Review & Editor**: Inspect how the ATS parser reads your resume before running compatibility analysis.
-- 🧠 **Local Transformers Engine (100% Free, Zero API Keys)**:
-  - Powered by `@xenova/transformers` with dense semantic vector embeddings (`Xenova/all-MiniLM-L6-v2`).
-  - Runs completely offline on CPU / Neural Engine with zero cloud dependencies and zero cost.
-- 🎯 **5-Category ATS Scoring Rubric**:
-  - **Keyword & Skills Match (35%)**: Exact & dense semantic embedding matching, synonym analysis, keyword stuffing penalties.
-  - **Title & Seniority Alignment (15%)**: Experience level & title alignment.
-  - **Formatting & Parseability (20%)**: Section header validation, table/column detection, date standardizations (MM/YYYY).
-  - **Content Quality & Impact (20%)**: Action verbs, quantified metrics (`%`, `$`, scale), bullet point conciseness.
-  - **Structure & Completeness (10%)**: Core sections presence, length checks, gap detection.
-- ⚡ **Automated Phase 2 Resume Enhancement**:
-  - Automatically triggers if score `< 70%` (or via `--force-enhance`).
-  - Rewrites weak bullet points using `[Action Verb] + [Context/How] + [Result/Scope]`.
-  - Injects `[ADD METRIC]` placeholders rather than hallucinating metrics.
-  - Generates a "What Changed & Why" table, re-scores the enhanced resume, and lists remaining candidate action items.
-- 💻 **Dual Interfaces**:
-  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, PDF parsing flow, Resume Roast modal, Grammar checker modal, and Supabase history.
-  - **Power-User CLI**: Terminal interface with multi-file ingestion, streaming outputs, and Markdown/JSON export capabilities.
+- **5-Category ATS Scoring Rubric**:
+  - Keyword & Skills Match (35%)
+  - Title & Seniority Alignment (15%)
+  - Formatting & Parseability (20%)
+  - Content Quality & Impact (20%)
+  - Structure & Completeness (10%)
+- **Conditional Auto-Enhancement**: Automatically rewrites weak bullets, restructures sections into standard ATS format, and adds `[ADD METRIC]` placeholders when score < 70%.
+- **Local Transformers (No API Keys Required)**: Uses local dense semantic vector embeddings (`all-MiniLM-L6-v2`) to run offline with zero cloud cost.
+- **Client-Side PDF/Word to TXT Parsing**: Extracts plain text from `.pdf` and `.docx` files directly in the browser or terminal.
+- **AI Grammar & Spell Checker**: Detects typos, passive voice, tense inconsistencies, and tech casing (`reactjs` -> `React`) with one-click auto-correction.
+- **Resume Roast Mode**: Generates blunt, constructive hiring-manager feedback with category breakdowns and action steps.
+- **Dual Interfaces**: Web interface (React + Tailwind) and power-user CLI tool.
 
 ---
 
-## 🚀 Setup & Quick Start
+## Installation & Setup
 
-### 1. Clone the Repository
+### Prerequisites
+- Node.js 18+
+- npm 9+
+
+### Quick Start
+
+1. Clone the repository:
 ```bash
 git clone https://github.com/aryankumar06/supercv.git
 cd supercv
 ```
 
-### 2. Install Dependencies
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-### 3. Check & Auto-Correct Resume Grammar ✨
-```bash
-npm run grammar -- samples/sample_resume.txt
-```
-
-### 4. Roast Your Resume 🔥
-```bash
-npm run roast -- samples/sample_resume.txt
-```
-
-### 5. Parse Any PDF Resume to Plain Text
-```bash
-npm run parse-pdf -- path/to/resume.pdf -o extracted_resume.txt
-```
-
-### 6. Run ATS Compatibility Analysis (Keyless / Local Transformer)
-```bash
-npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
-```
-
----
-
-## 🖥️ Running the Web Application
-
-To launch the web interface with PDF-to-TXT parsing, Grammar Checker, and Roast features:
-
+3. Start the Web App:
 ```bash
 npm run dev
 ```
-
-Open your browser at `http://localhost:5173`.
+Open `http://localhost:5173` in your browser.
 
 ---
 
-## ⌨️ CLI Commands Reference
+## CLI Usage
 
-### 1. Grammar & Spell Checker (`grammar`)
+### 1. ATS Compatibility Scoring & Auto-Enhancement
 ```bash
-# Check resume grammar & spelling
-npm run grammar -- /path/to/resume.pdf
+# Basic scoring and enhancement
+npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 
-# Save auto-corrected resume to file
-npm run grammar -- /path/to/resume.pdf -o corrected_resume.txt
+# Analyze a PDF resume against a job posting
+npm run ats -- -r path/to/resume.pdf -j path/to/job_description.txt
 
-# JSON Output
-npm run grammar -- /path/to/resume.pdf --json
-```
+# Export reports and enhanced resume
+npm run ats -- -r resume.pdf -j jd.txt --output report.md --json report.json --save-enhanced enhanced.txt
 
-### 2. AI Resume Roast (`roast`)
-```bash
-# Roast a resume
-npm run roast -- /path/to/resume.pdf
-
-# Roast against a target job description
-npm run roast -- /path/to/resume.pdf -j /path/to/job_description.txt
-```
-
-### 3. PDF / DOCX to TXT Parser (`parse-pdf`)
-```bash
-# Terminal overview with detected sections & contact info
-npm run parse-pdf -- /path/to/resume.pdf
-
-# Export parsed plain text directly
-npm run parse-pdf -- /path/to/resume.pdf -o resume_plain.txt
-```
-
-### 4. ATS Compatibility Scoring & Auto-Enhancement (`ats`)
-```bash
-# Analyze PDF Resume against Job Description
-npm run ats -- -r /path/to/resume.pdf -j /path/to/job_description.txt
-
-# Export Markdown & JSON Reports + Enhanced Resume
-npm run ats -- \
-  -r samples/sample_resume.txt \
-  -j samples/sample_jd.txt \
-  --output report.md \
-  --json report.json \
-  --save-enhanced enhanced_resume.txt
-
-# Force Phase 2 Enhancement Rewrite (Regardless of Score)
+# Force Phase 2 enhancement rewrite regardless of score
 npm run ats -- -r resume.pdf -j jd.txt --force-enhance
 
-# Interactive Step-by-Step Wizard
+# Interactive wizard
 npm run ats:interactive
 ```
 
+### 2. Grammar & Spell Checker
+```bash
+# Check resume grammar and view suggested fixes
+npm run grammar -- path/to/resume.pdf
+
+# Auto-correct and export directly to a text file
+npm run grammar -- path/to/resume.pdf -o corrected_resume.txt
+
+# JSON output
+npm run grammar -- path/to/resume.pdf --json
+```
+
+### 3. Resume Roast
+```bash
+# Roast a resume
+npm run roast -- path/to/resume.pdf
+
+# Roast against a target job description
+npm run roast -- path/to/resume.pdf -j path/to/job_description.txt
+```
+
+### 4. PDF to TXT Parser
+```bash
+# Inspect detected sections and extracted text
+npm run parse-pdf -- path/to/resume.pdf
+
+# Export extracted plain text
+npm run parse-pdf -- path/to/resume.pdf -o resume.txt
+```
+
 ---
 
-## 📁 Project Structure
+## Optional: Cloud LLM Configuration
+
+SuperCV uses local Transformers by default without requiring any API keys. If you want to use cloud providers instead, add your keys to `.env`:
+
+```env
+# Optional cloud providers
+GEMINI_API_KEY=your_key
+OPENAI_API_KEY=your_key
+ANTHROPIC_API_KEY=your_key
+GROQ_API_KEY=your_key
+```
+
+Specify the provider when running commands:
+```bash
+npm run ats -- -r resume.pdf -j jd.txt -p gemini -m gemini-2.5-flash
+npm run ats -- -r resume.pdf -j jd.txt -p openai -m gpt-4o
+npm run ats -- -r resume.pdf -j jd.txt -p claude -m claude-3-5-sonnet-latest
+```
+
+---
+
+## Project Structure
 
 ```
 supercv/
 ├── bin/
 │   └── ats.js                 # Executable CLI launcher
 ├── samples/
-│   ├── sample_resume.txt      # Sample candidate resume for testing
-│   └── sample_jd.txt          # Sample job posting for testing
+│   ├── sample_resume.txt      # Sample resume for testing
+│   └── sample_jd.txt          # Sample job description for testing
 ├── src/
 │   ├── cli/
-│   │   ├── fileReader.ts      # Multi-format document parser (PDF, Word, Text)
-│   │   ├── formatter.ts       # Terminal visualizer and report exporter
-│   │   ├── grammar.ts         # Standalone Grammar Checker CLI tool
-│   │   ├── index.ts           # Main Commander CLI entrypoint
-│   │   ├── interactive.ts     # Step-by-step interactive CLI wizard
-│   │   ├── llmClient.ts       # Multi-provider client (Transformers + LLMs)
-│   │   ├── parsePdf.ts        # PDF to TXT CLI tool & structure inspector
-│   │   ├── prompt.ts          # ATS System prompt & Phase templates
-│   │   ├── roast.ts           # Standalone Resume Roast CLI tool
-│   │   └── transformerEngine.ts # 100% Local ONNX Transformer Engine
+│   │   ├── fileReader.ts      # Multi-format document parser
+│   │   ├── formatter.ts       # Terminal formatter and exporter
+│   │   ├── grammar.ts         # Grammar checker CLI tool
+│   │   ├── index.ts           # ATS CLI entrypoint
+│   │   ├── interactive.ts     # Interactive wizard
+│   │   ├── llmClient.ts       # Multi-provider client
+│   │   ├── parsePdf.ts        # PDF to TXT CLI tool
+│   │   ├── prompt.ts          # System prompt & templates
+│   │   ├── roast.ts           # Resume roast CLI tool
+│   │   └── transformerEngine.ts # Local ONNX Transformer engine
 │   ├── components/
-│   │   ├── AnalysisInput.tsx   # Resume & JD upload/paste, PDF flow, Roast & Grammar buttons
-│   │   ├── AnalysisResults.tsx # Score visualizer, report renderer, Roast & Grammar triggers
-│   │   ├── GrammarCheckerModal.tsx # Grammar score, line-by-line diff, auto-correction modal
-│   │   └── ResumeRoastModal.tsx# Fiery Roast UI with burns & tough love fixes
+│   │   ├── AnalysisInput.tsx   # Resume & JD input component
+│   │   ├── AnalysisResults.tsx # ATS report component
+│   │   ├── GrammarCheckerModal.tsx # Grammar checker modal
+│   │   └── ResumeRoastModal.tsx# Roast modal component
 │   ├── lib/
-│   │   └── supabase.ts        # Database client & TypeScript definitions
+│   │   └── supabase.ts        # Database client & types
 │   ├── utils/
-│   │   ├── atsAnalyzer.ts     # Client-side heuristic analyzer
-│   │   ├── documentParser.ts  # Browser-side PDF.js & Word text extractor
-│   │   ├── grammarChecker.ts  # Spell checking, passive voice & tense auto-corrector
-│   │   ├── keywordExtractor.ts# Rule-based NLP extraction
-│   │   └── resumeRoaster.ts   # Savage & constructive roast engine
-│   ├── App.tsx                # Main React App with Developer Footer
-│   ├── index.css              # Tailwind styling
-│   └── main.tsx               # React DOM entrypoint
+│   │   ├── atsAnalyzer.ts     # ATS scoring logic
+│   │   ├── documentParser.ts  # Browser-side PDF/Word parser
+│   │   ├── grammarChecker.ts  # Grammar & spelling engine
+│   │   ├── keywordExtractor.ts# Keyword extraction logic
+│   │   └── resumeRoaster.ts   # Resume roast engine
+│   ├── App.tsx                # Main application component
+│   └── main.tsx               # Application entrypoint
 ├── .env.example               # Environment variables template
 ├── package.json
 └── README.md
@@ -184,19 +164,17 @@ supercv/
 
 ---
 
-## 👨‍💻 Get in Touch with Developer
+## Developer Contact
 
 **Aryan Kumar** — Developer & Creator of SuperCV.
 
-Feel free to connect, ask questions, report issues, or collaborate:
-
-- 💼 **LinkedIn**: [linkedin.com/in/aryan-kumarr-5450491ba/](https://www.linkedin.com/in/aryan-kumarr-5450491ba/)
-- 🐙 **GitHub**: [@aryankumar06](https://github.com/aryankumar06)
-- 📸 **Instagram**: [@aaryan_yarr](https://instagram.com/aaryan_yarr)
-- ✉️ **Email**: [workingforaryan@gmail.com](mailto:workingforaryan@gmail.com)
+- **LinkedIn**: [linkedin.com/in/aryan-kumarr-5450491ba/](https://www.linkedin.com/in/aryan-kumarr-5450491ba/)
+- **GitHub**: [@aryankumar06](https://github.com/aryankumar06)
+- **Instagram**: [@aaryan_yarr](https://instagram.com/aaryan_yarr)
+- **Email**: [workingforaryan@gmail.com](mailto:workingforaryan@gmail.com)
 
 ---
 
-## 📜 License
+## License
 
-MIT License. Feel free to use and customize for your own projects!
+MIT License.
