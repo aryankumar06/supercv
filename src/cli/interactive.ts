@@ -18,13 +18,13 @@ export async function runInteractiveWizard(): Promise<InteractiveOptions> {
 
   console.log(chalk.bold.yellow('Interactive Mode — Step-by-Step ATS Setup\n'));
 
-  // 1. LLM Provider
+  // 1. LLM / NLP Provider
   const detected = detectProvider();
-  let defaultProvider: LLMProvider = detected?.provider || 'gemini';
+  let defaultProvider: LLMProvider = detected.provider || 'transformer';
 
-  console.log(chalk.cyan(`Detected LLM Provider: ${chalk.bold(defaultProvider.toUpperCase())}`));
+  console.log(chalk.cyan(`Detected Provider: ${chalk.bold(defaultProvider.toUpperCase())}`));
   const providerAnswer = await rl.question(
-    `Select provider [gemini / openai / claude / ollama / groq / openrouter] (default: ${defaultProvider}): `
+    `Select provider [transformer (local/no keys) / gemini / openai / claude / ollama / groq / openrouter] (default: ${defaultProvider}): `
   );
 
   const provider: LLMProvider = (providerAnswer.trim().toLowerCase() as LLMProvider) || defaultProvider;

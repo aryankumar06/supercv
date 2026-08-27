@@ -27,7 +27,7 @@ program
   .version('1.0.0')
   .option('-r, --resume <path>', 'Path to resume file (.txt, .pdf, .docx, .md)')
   .option('-j, --jd <path>', 'Path to job description file (.txt, .md, .pdf)')
-  .option('-p, --provider <provider>', 'LLM provider: gemini | openai | claude | ollama | groq | openrouter')
+  .option('-p, --provider <provider>', 'LLM/NLP provider: transformer (local/free) | gemini | openai | claude | ollama | groq | openrouter')
   .option('-m, --model <model>', 'Model name override (e.g., gemini-2.5-pro, gpt-4o, llama3.2)')
   .option('-k, --api-key <key>', 'API key override')
   .option('--base-url <url>', 'Base URL override for LLM provider or Ollama')
@@ -115,6 +115,9 @@ async function main() {
     let fullOutput = await llmClient.generate({
       systemPrompt: ATS_SYSTEM_PROMPT,
       userPrompt: phase1Prompt,
+      resumeText,
+      jobDescription,
+      forceEnhance,
     });
 
     const parsedReport = parsePhase1Report(fullOutput);
@@ -133,6 +136,9 @@ async function main() {
       const phase2Output = await llmClient.generate({
         systemPrompt: ATS_SYSTEM_PROMPT,
         userPrompt: phase2Prompt,
+        resumeText,
+        jobDescription,
+        forceEnhance,
       });
 
       fullOutput = `${fullOutput}\n\n═══════════════════════════════════════\n${phase2Output}`;

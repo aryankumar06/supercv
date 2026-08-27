@@ -1,6 +1,6 @@
 # supercv 📄✨
 
-> **SuperCV** — AI-Powered ATS Resume Compatibility Checker & Auto-Enhancement Platform.
+> **SuperCV** — AI-Powered ATS Resume Compatibility Checker & Auto-Enhancement Platform using **Local Transformers (No API Keys Required)**.
 
 SuperCV scores candidate resumes against target job descriptions using an authentic 5-category Applicant Tracking System (ATS) rubric modeled after industry systems (Workday, Taleo, Greenhouse, iCIMS, and Lever). If the compatibility score falls below **70%**, SuperCV automatically triggers a structured Phase 2 rewrite to optimize presentation, keyword alignment, and impact without hallucinating qualifications.
 
@@ -8,8 +8,11 @@ SuperCV scores candidate resumes against target job descriptions using an authen
 
 ## 🌟 Key Features
 
+- 🧠 **Local Transformers Engine (100% Free, Zero API Keys)**:
+  - Powered by `@xenova/transformers` with dense semantic vector embeddings (`Xenova/all-MiniLM-L6-v2`).
+  - Runs completely offline on CPU / Neural Engine with zero cloud dependencies and zero cost.
 - 🎯 **5-Category ATS Scoring Rubric**:
-  - **Keyword & Skills Match (35%)**: Exact & synonym matching, frequency analysis, keyword stuffing penalties.
+  - **Keyword & Skills Match (35%)**: Exact & dense semantic embedding matching, synonym analysis, keyword stuffing penalties.
   - **Title & Seniority Alignment (15%)**: Experience level & title alignment.
   - **Formatting & Parseability (20%)**: Section header validation, table/column detection, date standardizations (MM/YYYY).
   - **Content Quality & Impact (20%)**: Action verbs, quantified metrics (`%`, `$`, scale), bullet point conciseness.
@@ -22,12 +25,12 @@ SuperCV scores candidate resumes against target job descriptions using an authen
 - 💻 **Dual Interfaces**:
   - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, and Supabase history.
   - **Power-User CLI**: Terminal interface with multi-file ingestion, streaming outputs, and Markdown/JSON export capabilities.
-- 🤖 **Universal Multi-Provider AI Support**:
-  - **Google Gemini**: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-1.5-pro`
+- 🤖 **Universal Multi-Provider Support**:
+  - **Local Transformers** (Default, zero keys required)
+  - **Google Gemini**: `gemini-2.5-flash`, `gemini-2.5-pro`
   - **OpenAI**: `gpt-4o`, `gpt-4o-mini`
   - **Anthropic Claude**: `claude-3-7-sonnet`, `claude-3-5-sonnet`
-  - **Local Ollama** *(Zero-cost offline execution)*: `llama3.2`, `llama3.3`, `deepseek-r1`, `mistral`
-  - **Groq & OpenRouter** / Custom OpenAI-compatible endpoints.
+  - **Local Ollama**: `llama3.2`, `llama3.3`, `deepseek-r1`
 - 📂 **Multi-Format Document Ingestion**:
   - Plain Text (`.txt`), Markdown (`.md`), Adobe PDF (`.pdf`), and Microsoft Word (`.docx`).
 
@@ -37,11 +40,11 @@ SuperCV scores candidate resumes against target job descriptions using an authen
 
 - **Node.js**: v18.0.0 or higher (v20+ recommended)
 - **npm**: v9.0.0 or higher
-- *(Optional)* An API key for Gemini, OpenAI, Claude, or Groq, or a local [Ollama](https://ollama.com) instance.
+- *No API keys needed by default!*
 
 ---
 
-## 🚀 Setup & Installation Guide
+## 🚀 Setup & Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -54,26 +57,10 @@ cd supercv
 npm install
 ```
 
-### 3. Configure Environment Variables
-Copy `.env.example` to `.env`:
+### 3. Run ATS Analysis Instantly (Keyless / Local Transformer)
 ```bash
-cp .env.example .env
+npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 ```
-
-Edit `.env` to configure your API keys (choose any provider you prefer):
-```env
-# AI Providers (At least one recommended for CLI AI analysis)
-GEMINI_API_KEY=your_gemini_api_key
-OPENAI_API_KEY=your_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
-GROQ_API_KEY=your_groq_api_key
-
-# Supabase (Optional - for saving web analysis results)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-> **Tip for 100% Free Local AI:** Install [Ollama](https://ollama.com), run `ollama run llama3.2`, and run the CLI using `-p ollama` without needing any API keys or paid accounts!
 
 ---
 
@@ -90,11 +77,6 @@ Open your browser at `http://localhost:5173`.
 ---
 
 ## ⌨️ Running the CLI Tool
-
-### Quick Start with Sample Files
-```bash
-npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
-```
 
 ### Analyze a PDF or DOCX Resume
 ```bash
@@ -116,26 +98,25 @@ npm run ats -- \
 npm run ats -- -r resume.pdf -j jd.txt --force-enhance
 ```
 
-### Specify an LLM Provider / Model
-```bash
-# Google Gemini
-npm run ats -- -r resume.pdf -j jd.txt -p gemini -m gemini-2.5-flash
-
-# OpenAI GPT-4o
-npm run ats -- -r resume.pdf -j jd.txt -p openai -m gpt-4o
-
-# Anthropic Claude 3.7 Sonnet
-npm run ats -- -r resume.pdf -j jd.txt -p claude -m claude-3-7-sonnet-latest
-
-# Local Ollama (Offline / Free)
-npm run ats -- -r resume.pdf -j jd.txt -p ollama -m llama3.2
-```
-
 ### Interactive Step-by-Step Wizard
 ```bash
 npm run ats:interactive
 # or
 npm run ats
+```
+
+### Optional: Use Cloud AI Providers
+If you want to use cloud LLMs instead of the default local transformer:
+
+```bash
+# Google Gemini
+GEMINI_API_KEY=your_key npm run ats -- -r resume.pdf -j jd.txt -p gemini
+
+# OpenAI GPT-4o
+OPENAI_API_KEY=your_key npm run ats -- -r resume.pdf -j jd.txt -p openai
+
+# Anthropic Claude
+ANTHROPIC_API_KEY=your_key npm run ats -- -r resume.pdf -j jd.txt -p claude
 ```
 
 ---
@@ -146,16 +127,14 @@ npm run ats
 |---|---|---|
 | `--resume <path>` | `-r` | Path to resume file (`.txt`, `.pdf`, `.docx`, `.md`) |
 | `--jd <path>` | `-j` | Path to job description file (`.txt`, `.md`, `.pdf`) |
-| `--provider <name>` | `-p` | Provider: `gemini`, `openai`, `claude`, `ollama`, `groq`, `openrouter` |
+| `--provider <name>` | `-p` | Provider: `transformer` (default/free), `gemini`, `openai`, `claude`, `ollama`, `groq` |
 | `--model <name>` | `-m` | Model name override |
-| `--api-key <key>` | `-k` | API key override |
-| `--base-url <url>` | | Base URL override for custom endpoints or Ollama |
 | `--output <path>` | `-o` | Export complete Markdown analysis report |
 | `--json <path>` | | Export structured report as JSON |
 | `--save-enhanced <path>` | | Export enhanced plain-text resume |
 | `--force-enhance` | `-f` | Force Phase 2 rewrite even if score is ≥70% |
 | `--interactive` | `-i` | Run interactive wizard mode |
-| `--raw` | | Output raw LLM response without formatting |
+| `--raw` | | Output raw response without terminal formatting |
 | `--help` | `-h` | Display help screen |
 
 ---
@@ -175,8 +154,9 @@ supercv/
 │   │   ├── formatter.ts       # Terminal visualizer and report exporter
 │   │   ├── index.ts           # Main Commander CLI entrypoint
 │   │   ├── interactive.ts     # Step-by-step interactive CLI wizard
-│   │   ├── llmClient.ts       # Universal multi-provider LLM caller
-│   │   └── prompt.ts          # System prompt & Phase 1/Phase 2 templates
+│   │   ├── llmClient.ts       # Multi-provider client (Transformers + LLMs)
+│   │   ├── prompt.ts          # ATS System prompt & Phase templates
+│   │   └── transformerEngine.ts # 100% Local ONNX Transformer Engine
 │   ├── components/
 │   │   ├── AnalysisInput.tsx   # Web resume & JD upload/paste component
 │   │   └── AnalysisResults.tsx # Web score visualizer & report renderer
@@ -197,4 +177,4 @@ supercv/
 
 ## 📜 License
 
-MIT License. Feel free to use and customize for your own projects!
+MIT License.

@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
+import { analyzeWithTransformer } from './transformerEngine';
 
 dotenv.config();
 
-export type LLMProvider = 'gemini' | 'openai' | 'claude' | 'ollama' | 'groq' | 'openrouter';
+export type LLMProvider = 'transformer' | 'gemini' | 'openai' | 'claude' | 'ollama' | 'groq' | 'openrouter';
 
 export interface LLMConfig {
   provider: LLMProvider;
@@ -15,10 +16,14 @@ export interface LLMConfig {
 export interface GenerateOptions {
   systemPrompt: string;
   userPrompt: string;
+  resumeText?: string;
+  jobDescription?: string;
+  forceEnhance?: boolean;
   onChunk?: (text: string) => void;
 }
 
 export const DEFAULT_MODELS: Record<LLMProvider, string> = {
+  transformer: 'Xenova/all-MiniLM-L6-v2 (Local Embeddings)',
   gemini: 'gemini-2.5-flash',
   openai: 'gpt-4o-mini',
   claude: 'claude-3-5-sonnet-latest',
@@ -27,7 +32,7 @@ export const DEFAULT_MODELS: Record<LLMProvider, string> = {
   openrouter: 'google/gemini-2.5-flash',
 };
 
-export function detectProvider(): { provider: LLMProvider; apiKey?: string; baseUrl?: string } | null {
+export function detectProvider(): { provider: LLMProvider; apiKey?: string; baseUrl?: string } {
   if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
     return {
       provider: 'gemini',
@@ -65,7 +70,10 @@ export function detectProvider(): { provider: LLMProvider; apiKey?: string; base
       baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
     };
   }
-  return null;
+  // Default to local transformer if no keys are found
+  return {
+    provider: 'transformer',
+  };
 }
 
 export class LLMClient {
@@ -73,10 +81,10 @@ export class LLMClient {
 
   constructor(config?: Partial<LLMConfig>) {
     const detected = detectProvider();
-    const provider = config?.provider || detected?.provider || 'gemini';
+    const provider = config?.provider || detected.provider;
     const apiKey =
       config?.apiKey ||
-      detected?.apiKey ||
+      detected.apiKey ||
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
       process.env.OPENAI_API_KEY ||
@@ -87,7 +95,7 @@ export class LLMClient {
 
     const baseUrl =
       config?.baseUrl ||
-      detected?.baseUrl ||
+      detected.baseUrl ||
       (provider === 'ollama' ? 'http://localhost:11434' : undefined);
 
     const model = config?.model || DEFAULT_MODELS[provider];
@@ -109,6 +117,17 @@ export class LLMClient {
     const { provider } = this.config;
 
     switch (provider) {
+      case 'transformer': {
+        if (options.resumeText && options.jobDescription) {
+          const res = await analyzeWithTransformer(
+            options.resumeText,
+            options.jobDescription,
+            options.forceEnhance
+          );
+          return res.markdownReport;
+        }
+        throw new Error('Transformer engine requires resumeText and jobDescription');
+      }
       case 'gemini':
         return this.callGemini(options);
       case 'openai':
@@ -128,7 +147,7 @@ export class LLMClient {
     const apiKey = this.config.apiKey;
     if (!apiKey) {
       throw new Error(
-        'Missing Gemini API key. Set GEMINI_API_KEY in your .env file or environment, or pass it via --api-key.'
+        'Missing Gemini API key. Set GEMINI_API_KEY in your .env file or environment, or use --provider transformer for 100% local analysis without keys.'
       );
     }
 
@@ -178,7 +197,7 @@ export class LLMClient {
 
     if (!apiKey && provider !== 'ollama') {
       throw new Error(
-        `Missing API key for ${provider}. Set ${provider.toUpperCase()}_API_KEY in your .env or environment.`
+        `Missing API key for ${provider}. Set ${provider.toUpperCase()}_API_KEY or use --provider transformer for keyless local execution.`
       );
     }
 
@@ -235,7 +254,7 @@ export class LLMClient {
   private async callClaude(options: GenerateOptions): Promise<string> {
     const apiKey = this.config.apiKey;
     if (!apiKey) {
-      throw new Error('Missing Anthropic API key. Set ANTHROPIC_API_KEY in your .env file or environment.');
+      throw new Error('Missing Anthropic API key. Set ANTHROPIC_API_KEY in your .env file or use --provider transformer.');
     }
 
     const url = 'https://api.anthropic.com/v1/messages';
