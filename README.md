@@ -1,6 +1,6 @@
 # supercv 📄✨
 
-> **SuperCV** — AI-Powered ATS Resume Compatibility Checker, Auto-Enhancement Platform, **AI Resume Roast 🔥**, & **Client-Side PDF-to-TXT Parsing** using **Local Transformers (No API Keys Required)**.
+> **SuperCV** — AI-Powered ATS Resume Compatibility Checker, Auto-Enhancement Platform, **AI Resume Roast 🔥**, **Grammar & Spell Auto-Corrector ✨**, & **Client-Side PDF-to-TXT Parsing** using **Local Transformers (No API Keys Required)**.
 
 SuperCV scores candidate resumes against target job descriptions using an authentic 5-category Applicant Tracking System (ATS) rubric modeled after industry systems (Workday, Taleo, Greenhouse, iCIMS, and Lever). If the compatibility score falls below **70%**, SuperCV automatically triggers a structured Phase 2 rewrite to optimize presentation, keyword alignment, and impact without hallucinating qualifications.
 
@@ -8,10 +8,13 @@ SuperCV scores candidate resumes against target job descriptions using an authen
 
 ## 🌟 Key Features
 
+- ✨ **AI Grammar & Spell Checker with One-Click Auto-Correction**:
+  - Automatically identifies typos, misspellings, passive voice phrasing ("was responsible for"), inconsistent tenses, punctuation errors, and tech acronym casing (`reactjs` -> `React`, `nodejs` -> `Node.js`, `aws` -> `AWS`).
+  - Generates a **Grammar Health Score & Grade (A+ to F)**.
+  - One-click **"Apply All Corrections"** button to update your resume instantly.
 - 🔥 **AI Resume Roast (Savage & Constructive Recruiter Mode)**:
   - Unfiltered hiring manager critique with humorous, pinpoint burns on buzzword soup, ghost metrics, passive duties, and formatting sins.
   - Generates a **Roast Heat Level (0–100)**, **Recruiter 6-Second First Impression**, and **Tough Love Actionable Fixes**.
-  - Available via the prominent Web UI button and the `npm run roast` CLI tool.
 - 📑 **Instant PDF / Word to TXT Structure Parser**:
   - Automatically extracts clean, ATS-parseable plain text from **Adobe PDF (`.pdf`)** and **Microsoft Word (`.docx`)** directly in the browser or terminal.
   - **Structure Inspector**: Real-time section detection badges (Contact Info, Summary, Skills, Experience, Education, Projects, Certifications) and word/page counts.
@@ -31,7 +34,7 @@ SuperCV scores candidate resumes against target job descriptions using an authen
   - Injects `[ADD METRIC]` placeholders rather than hallucinating metrics.
   - Generates a "What Changed & Why" table, re-scores the enhanced resume, and lists remaining candidate action items.
 - 💻 **Dual Interfaces**:
-  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, PDF parsing flow, Resume Roast modal, and Supabase history.
+  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, PDF parsing flow, Resume Roast modal, Grammar checker modal, and Supabase history.
   - **Power-User CLI**: Terminal interface with multi-file ingestion, streaming outputs, and Markdown/JSON export capabilities.
 
 ---
@@ -49,17 +52,22 @@ cd supercv
 npm install
 ```
 
-### 3. Roast Your Resume 🔥
+### 3. Check & Auto-Correct Resume Grammar ✨
+```bash
+npm run grammar -- samples/sample_resume.txt
+```
+
+### 4. Roast Your Resume 🔥
 ```bash
 npm run roast -- samples/sample_resume.txt
 ```
 
-### 4. Parse Any PDF Resume to Structured Plain Text
+### 5. Parse Any PDF Resume to Plain Text
 ```bash
 npm run parse-pdf -- path/to/resume.pdf -o extracted_resume.txt
 ```
 
-### 5. Run ATS Compatibility Analysis (Keyless / Local Transformer)
+### 6. Run ATS Compatibility Analysis (Keyless / Local Transformer)
 ```bash
 npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 ```
@@ -68,7 +76,7 @@ npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 
 ## 🖥️ Running the Web Application
 
-To launch the web interface with drag-and-drop PDF-to-TXT parsing and the Roast feature:
+To launch the web interface with PDF-to-TXT parsing, Grammar Checker, and Roast features:
 
 ```bash
 npm run dev
@@ -80,31 +88,37 @@ Open your browser at `http://localhost:5173`.
 
 ## ⌨️ CLI Commands Reference
 
-### 1. AI Resume Roast (`roast`)
+### 1. Grammar & Spell Checker (`grammar`)
+```bash
+# Check resume grammar & spelling
+npm run grammar -- /path/to/resume.pdf
+
+# Save auto-corrected resume to file
+npm run grammar -- /path/to/resume.pdf -o corrected_resume.txt
+
+# JSON Output
+npm run grammar -- /path/to/resume.pdf --json
+```
+
+### 2. AI Resume Roast (`roast`)
 ```bash
 # Roast a resume
 npm run roast -- /path/to/resume.pdf
 
 # Roast against a target job description
 npm run roast -- /path/to/resume.pdf -j /path/to/job_description.txt
-
-# JSON Output
-npm run roast -- /path/to/resume.pdf --json
 ```
 
-### 2. PDF / DOCX to TXT Parser (`parse-pdf`)
+### 3. PDF / DOCX to TXT Parser (`parse-pdf`)
 ```bash
 # Terminal overview with detected sections & contact info
 npm run parse-pdf -- /path/to/resume.pdf
 
 # Export parsed plain text directly
 npm run parse-pdf -- /path/to/resume.pdf -o resume_plain.txt
-
-# Structured JSON output
-npm run parse-pdf -- /path/to/resume.pdf --json
 ```
 
-### 3. ATS Compatibility Scoring & Auto-Enhancement (`ats`)
+### 4. ATS Compatibility Scoring & Auto-Enhancement (`ats`)
 ```bash
 # Analyze PDF Resume against Job Description
 npm run ats -- -r /path/to/resume.pdf -j /path/to/job_description.txt
@@ -139,6 +153,7 @@ supercv/
 │   ├── cli/
 │   │   ├── fileReader.ts      # Multi-format document parser (PDF, Word, Text)
 │   │   ├── formatter.ts       # Terminal visualizer and report exporter
+│   │   ├── grammar.ts         # Standalone Grammar Checker CLI tool
 │   │   ├── index.ts           # Main Commander CLI entrypoint
 │   │   ├── interactive.ts     # Step-by-step interactive CLI wizard
 │   │   ├── llmClient.ts       # Multi-provider client (Transformers + LLMs)
@@ -147,17 +162,19 @@ supercv/
 │   │   ├── roast.ts           # Standalone Resume Roast CLI tool
 │   │   └── transformerEngine.ts # 100% Local ONNX Transformer Engine
 │   ├── components/
-│   │   ├── AnalysisInput.tsx   # Resume & JD upload/paste, PDF flow, Roast button
-│   │   ├── AnalysisResults.tsx # Score visualizer, report renderer, Roast mode
+│   │   ├── AnalysisInput.tsx   # Resume & JD upload/paste, PDF flow, Roast & Grammar buttons
+│   │   ├── AnalysisResults.tsx # Score visualizer, report renderer, Roast & Grammar triggers
+│   │   ├── GrammarCheckerModal.tsx # Grammar score, line-by-line diff, auto-correction modal
 │   │   └── ResumeRoastModal.tsx# Fiery Roast UI with burns & tough love fixes
 │   ├── lib/
 │   │   └── supabase.ts        # Database client & TypeScript definitions
 │   ├── utils/
 │   │   ├── atsAnalyzer.ts     # Client-side heuristic analyzer
 │   │   ├── documentParser.ts  # Browser-side PDF.js & Word text extractor
+│   │   ├── grammarChecker.ts  # Spell checking, passive voice & tense auto-corrector
 │   │   ├── keywordExtractor.ts# Rule-based NLP extraction
 │   │   └── resumeRoaster.ts   # Savage & constructive roast engine
-│   ├── App.tsx                # Main React App
+│   ├── App.tsx                # Main React App with Developer Footer
 │   ├── index.css              # Tailwind styling
 │   └── main.tsx               # React DOM entrypoint
 ├── .env.example               # Environment variables template
@@ -173,9 +190,9 @@ supercv/
 
 Feel free to connect, ask questions, report issues, or collaborate:
 
-- 💼 **LinkedIn**: [linkedin.com/in/aryankumar06](https://linkedin.com/in/aryankumar06)
+- 💼 **LinkedIn**: [linkedin.com/in/aryan-kumarr-5450491ba/](https://www.linkedin.com/in/aryan-kumarr-5450491ba/)
 - 🐙 **GitHub**: [@aryankumar06](https://github.com/aryankumar06)
-- 📸 **Instagram**: [@aryankumar06](https://instagram.com/aryankumar06)
+- 📸 **Instagram**: [@aaryan_yarr](https://instagram.com/aaryan_yarr)
 - ✉️ **Email**: [workingforaryan@gmail.com](mailto:workingforaryan@gmail.com)
 
 ---

@@ -11,10 +11,13 @@ import {
   ArrowRight,
   Lightbulb,
   Flame,
+  SpellCheck,
 } from 'lucide-react';
 import type { EnhancementChange, AnalysisResult } from '../lib/supabase';
 import { roastResume, type ResumeRoastResult } from '../utils/resumeRoaster';
 import { ResumeRoastModal } from './ResumeRoastModal';
+import { checkGrammar, type GrammarCheckResult } from '../utils/grammarChecker';
+import { GrammarCheckerModal } from './GrammarCheckerModal';
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
@@ -36,6 +39,8 @@ export function AnalysisResults({ result, onReset, resumeText, jobDescription }:
   const [showEnhanced, setShowEnhanced] = useState(false);
   const [isRoastModalOpen, setIsRoastModalOpen] = useState(false);
   const [roastResult, setRoastResult] = useState<ResumeRoastResult | null>(null);
+  const [isGrammarModalOpen, setIsGrammarModalOpen] = useState(false);
+  const [grammarResult, setGrammarResult] = useState<GrammarCheckResult | null>(null);
 
   const handleOpenRoast = () => {
     const textToRoast = showEnhanced && result.enhanced_resume ? result.enhanced_resume : resumeText || '';
@@ -43,6 +48,14 @@ export function AnalysisResults({ result, onReset, resumeText, jobDescription }:
     const roast = roastResume(textToRoast, jobDescription);
     setRoastResult(roast);
     setIsRoastModalOpen(true);
+  };
+
+  const handleOpenGrammar = () => {
+    const textToCheck = showEnhanced && result.enhanced_resume ? result.enhanced_resume : resumeText || '';
+    if (!textToCheck) return;
+    const res = checkGrammar(textToCheck);
+    setGrammarResult(res);
+    setIsGrammarModalOpen(true);
   };
 
   const score = showEnhanced && result.enhanced_score ? result.enhanced_score : result.ats_score;
@@ -112,7 +125,14 @@ export function AnalysisResults({ result, onReset, resumeText, jobDescription }:
             {showEnhanced ? 'Enhanced version' : 'Original resume'} analysis
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleOpenGrammar}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg transition-all text-sm font-semibold shadow-sm"
+          >
+            <SpellCheck className="w-4 h-4 text-indigo-600" />
+            Grammar Check ✨
+          </button>
           <button
             onClick={handleOpenRoast}
             className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-500 hover:to-rose-500 text-white rounded-lg transition-all text-sm font-semibold shadow-sm hover:shadow-md shadow-red-500/20"
@@ -435,6 +455,14 @@ export function AnalysisResults({ result, onReset, resumeText, jobDescription }:
         roast={roastResult}
         isOpen={isRoastModalOpen}
         onClose={() => setIsRoastModalOpen(false)}
+      />
+
+      {/* Grammar Modal */}
+      <GrammarCheckerModal
+        result={grammarResult}
+        isOpen={isGrammarModalOpen}
+        onClose={() => setIsGrammarModalOpen(false)}
+        onApplyCorrection={() => {}}
       />
     </div>
   );

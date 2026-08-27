@@ -12,10 +12,13 @@ import {
   FileCode,
   Check,
   Flame,
+  SpellCheck,
 } from 'lucide-react';
 import { parseDocument, type ParsedDocumentResult } from '../utils/documentParser';
 import { roastResume, type ResumeRoastResult } from '../utils/resumeRoaster';
 import { ResumeRoastModal } from './ResumeRoastModal';
+import { checkGrammar, type GrammarCheckResult } from '../utils/grammarChecker';
+import { GrammarCheckerModal } from './GrammarCheckerModal';
 
 interface AnalysisInputProps {
   onAnalyze: (resumeText: string, jobDescription: string) => void;
@@ -42,6 +45,9 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
   const [roastResult, setRoastResult] = useState<ResumeRoastResult | null>(null);
   const [isRoastModalOpen, setIsRoastModalOpen] = useState(false);
 
+  const [grammarResult, setGrammarResult] = useState<GrammarCheckResult | null>(null);
+  const [isGrammarModalOpen, setIsGrammarModalOpen] = useState(false);
+
   const handleRoast = () => {
     if (resumeText.trim().length < 50) {
       setError('Please upload or paste your resume first (at least 50 characters) to roast.');
@@ -51,6 +57,21 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
     const roast = roastResume(resumeText, jobDescription);
     setRoastResult(roast);
     setIsRoastModalOpen(true);
+  };
+
+  const handleCheckGrammar = () => {
+    if (resumeText.trim().length < 50) {
+      setError('Please upload or paste your resume first (at least 50 characters) to check grammar.');
+      return;
+    }
+    setError('');
+    const res = checkGrammar(resumeText);
+    setGrammarResult(res);
+    setIsGrammarModalOpen(true);
+  };
+
+  const handleApplyGrammarCorrection = (corrected: string) => {
+    setResumeText(corrected);
   };
 
   const handleFileProcess = async (file: File, target: 'resume' | 'jd') => {
@@ -458,20 +479,30 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <button
           onClick={handleClear}
           disabled={isAnalyzing}
-          className="px-6 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+          className="px-5 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
         >
           Clear All
         </button>
 
         <button
           type="button"
+          onClick={handleCheckGrammar}
+          disabled={resumeText.trim().length < 50 || isAnalyzing}
+          className="flex items-center gap-2 px-5 py-3 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <SpellCheck className="w-4 h-4 text-indigo-600" />
+          Check & Fix Grammar ✨
+        </button>
+
+        <button
+          type="button"
           onClick={handleRoast}
           disabled={resumeText.trim().length < 50 || isAnalyzing}
-          className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-red-600 to-rose-600 hover:from-orange-500 hover:to-rose-500 rounded-xl transition-all shadow-md hover:shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-red-600 to-rose-600 hover:from-orange-500 hover:to-rose-500 rounded-xl transition-all shadow-md hover:shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Flame className="w-4 h-4 text-amber-300 animate-pulse" />
           Roast My Resume 🔥
@@ -480,7 +511,7 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="flex items-center gap-2 px-8 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg shadow-blue-500/20"
+          className="flex items-center gap-2 px-7 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg shadow-blue-500/20"
         >
           {isAnalyzing ? (
             <>
@@ -504,9 +535,17 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         onAutoEnhance={canSubmit ? handleSubmit : undefined}
       />
 
+      {/* Grammar Checker Modal */}
+      <GrammarCheckerModal
+        result={grammarResult}
+        isOpen={isGrammarModalOpen}
+        onClose={() => setIsGrammarModalOpen(false)}
+        onApplyCorrection={handleApplyGrammarCorrection}
+      />
+
       <div className="text-center text-xs text-gray-500 max-w-2xl mx-auto">
         <p>
-          Drop your PDF or Word resume to extract plain-text, inspect ATS structure, get brutally honest roast feedback, or run full ATS scoring with automatic enhancement under 70%.
+          Drop your PDF or Word resume to extract plain-text, fix grammar & spelling errors, get brutally honest roast feedback, or run full ATS scoring with automatic enhancement under 70%.
         </p>
       </div>
     </div>

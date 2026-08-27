@@ -12,7 +12,8 @@
     "ats": "tsx src/cli/index.ts",
     "ats:interactive": "tsx src/cli/index.ts -i",
     "parse-pdf": "tsx src/cli/parsePdf.ts",
-    "roast": "tsx src/cli/roast.ts"
+    "roast": "tsx src/cli/roast.ts",
+    "grammar": "tsx src/cli/grammar.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
