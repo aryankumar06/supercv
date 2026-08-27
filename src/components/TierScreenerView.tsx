@@ -444,9 +444,14 @@ export function TierScreenerView() {
                                 <span className="font-bold text-gray-700 dark:text-zinc-300">Recruiter Feedback:</span>
                                 <p className="text-gray-600 dark:text-zinc-400 mt-0.5">{area.feedback}</p>
                               </div>
-                              <div className="p-2.5 bg-blue-50 dark:bg-zinc-800 border border-blue-200 dark:border-zinc-700 rounded-lg text-blue-900 dark:text-zinc-200">
-                                <span className="font-bold">Recommendation: </span>
-                                {area.recommendation}
+                              <div className="p-3 bg-blue-50/80 dark:bg-zinc-800/90 border border-blue-200 dark:border-zinc-700 rounded-lg text-xs space-y-1">
+                                <div className="font-bold text-blue-900 dark:text-zinc-100 flex items-center gap-1.5">
+                                  <Lightbulb className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                  Actionable Recommendation:
+                                </div>
+                                <p className="text-blue-950 dark:text-zinc-300 leading-relaxed font-sans">
+                                  {area.recommendation}
+                                </p>
                               </div>
                             </div>
                           )}
@@ -510,9 +515,14 @@ export function TierScreenerView() {
                                 <span className="font-bold text-gray-700 dark:text-zinc-300">Recruiter Feedback:</span>
                                 <p className="text-gray-600 dark:text-zinc-400 mt-0.5">{area.feedback}</p>
                               </div>
-                              <div className="p-2.5 bg-orange-50 dark:bg-zinc-800 border border-orange-200 dark:border-zinc-700 rounded-lg text-orange-900 dark:text-zinc-200">
-                                <span className="font-bold">Recommendation: </span>
-                                {area.recommendation}
+                              <div className="p-3 bg-orange-50/80 dark:bg-zinc-800/90 border border-orange-200 dark:border-zinc-700 rounded-lg text-xs space-y-1">
+                                <div className="font-bold text-orange-900 dark:text-zinc-100 flex items-center gap-1.5">
+                                  <Lightbulb className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
+                                  Actionable Recommendation:
+                                </div>
+                                <p className="text-orange-950 dark:text-zinc-300 leading-relaxed font-sans">
+                                  {area.recommendation}
+                                </p>
                               </div>
                             </div>
                           )}
