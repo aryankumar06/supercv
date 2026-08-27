@@ -1,6 +1,6 @@
 # supercv 📄✨
 
-> **SuperCV** — AI-Powered ATS Resume Compatibility Checker & Auto-Enhancement Platform using **Local Transformers (No API Keys Required)**.
+> **SuperCV** — AI-Powered ATS Resume Compatibility Checker & Auto-Enhancement Platform with **Client-Side PDF-to-TXT Parsing** & **Local Transformers (No API Keys Required)**.
 
 SuperCV scores candidate resumes against target job descriptions using an authentic 5-category Applicant Tracking System (ATS) rubric modeled after industry systems (Workday, Taleo, Greenhouse, iCIMS, and Lever). If the compatibility score falls below **70%**, SuperCV automatically triggers a structured Phase 2 rewrite to optimize presentation, keyword alignment, and impact without hallucinating qualifications.
 
@@ -8,6 +8,10 @@ SuperCV scores candidate resumes against target job descriptions using an authen
 
 ## 🌟 Key Features
 
+- 📑 **Instant PDF / Word to TXT Structure Parser**:
+  - Automatically extracts clean, ATS-parseable plain text from **Adobe PDF (`.pdf`)** and **Microsoft Word (`.docx`)** directly in the browser or terminal.
+  - **Structure Inspector**: Real-time section detection badges (Contact Info, Summary, Skills, Experience, Education, Projects, Certifications) and word/page counts.
+  - **Live Text Review & Editor**: Inspect how the ATS parser reads your resume before running compatibility analysis.
 - 🧠 **Local Transformers Engine (100% Free, Zero API Keys)**:
   - Powered by `@xenova/transformers` with dense semantic vector embeddings (`Xenova/all-MiniLM-L6-v2`).
   - Runs completely offline on CPU / Neural Engine with zero cloud dependencies and zero cost.
@@ -23,7 +27,7 @@ SuperCV scores candidate resumes against target job descriptions using an authen
   - Injects `[ADD METRIC]` placeholders rather than hallucinating metrics.
   - Generates a "What Changed & Why" table, re-scores the enhanced resume, and lists remaining candidate action items.
 - 💻 **Dual Interfaces**:
-  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, and Supabase history.
+  - **Interactive Web App**: Modern React + Tailwind interface with real-time score visualizer, category breakdown, PDF parsing flow, and Supabase history.
   - **Power-User CLI**: Terminal interface with multi-file ingestion, streaming outputs, and Markdown/JSON export capabilities.
 - 🤖 **Universal Multi-Provider Support**:
   - **Local Transformers** (Default, zero keys required)
@@ -31,16 +35,6 @@ SuperCV scores candidate resumes against target job descriptions using an authen
   - **OpenAI**: `gpt-4o`, `gpt-4o-mini`
   - **Anthropic Claude**: `claude-3-7-sonnet`, `claude-3-5-sonnet`
   - **Local Ollama**: `llama3.2`, `llama3.3`, `deepseek-r1`
-- 📂 **Multi-Format Document Ingestion**:
-  - Plain Text (`.txt`), Markdown (`.md`), Adobe PDF (`.pdf`), and Microsoft Word (`.docx`).
-
----
-
-## 🛠️ Prerequisites
-
-- **Node.js**: v18.0.0 or higher (v20+ recommended)
-- **npm**: v9.0.0 or higher
-- *No API keys needed by default!*
 
 ---
 
@@ -57,7 +51,16 @@ cd supercv
 npm install
 ```
 
-### 3. Run ATS Analysis Instantly (Keyless / Local Transformer)
+### 3. Parse Any PDF Resume to Structured Plain Text
+```bash
+npm run parse-pdf -- path/to/resume.pdf
+```
+Or save the extracted TXT to a file:
+```bash
+npm run parse-pdf -- path/to/resume.pdf -o extracted_resume.txt
+```
+
+### 4. Run ATS Compatibility Analysis (Keyless / Local Transformer)
 ```bash
 npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 ```
@@ -66,7 +69,7 @@ npm run ats -- --resume samples/sample_resume.txt --jd samples/sample_jd.txt
 
 ## 🖥️ Running the Web Application
 
-To launch the web interface:
+To launch the web interface with drag-and-drop PDF-to-TXT parsing:
 
 ```bash
 npm run dev
@@ -76,66 +79,56 @@ Open your browser at `http://localhost:5173`.
 
 ---
 
-## ⌨️ Running the CLI Tool
+## ⌨️ CLI Commands & Usage
 
-### Analyze a PDF or DOCX Resume
+### 1. PDF / DOCX to TXT Parser (`parse-pdf`)
 ```bash
-npm run ats -- -r /path/to/resume.pdf -j /path/to/job_description.txt
+# Terminal overview with detected sections & contact info
+npm run parse-pdf -- /path/to/resume.pdf
+
+# Export parsed plain text directly
+npm run parse-pdf -- /path/to/resume.pdf -o resume_plain.txt
+
+# Structured JSON output
+npm run parse-pdf -- /path/to/resume.pdf --json
 ```
 
-### Export Reports & Enhanced Resume
+### 2. ATS Compatibility Scoring & Auto-Enhancement (`ats`)
 ```bash
+# Analyze PDF Resume against Job Description
+npm run ats -- -r /path/to/resume.pdf -j /path/to/job_description.txt
+
+# Export Markdown & JSON Reports + Enhanced Resume
 npm run ats -- \
   -r samples/sample_resume.txt \
   -j samples/sample_jd.txt \
   --output report.md \
   --json report.json \
   --save-enhanced enhanced_resume.txt
-```
 
-### Force Enhancement Rewrite (Regardless of Score)
-```bash
+# Force Phase 2 Enhancement Rewrite (Regardless of Score)
 npm run ats -- -r resume.pdf -j jd.txt --force-enhance
-```
 
-### Interactive Step-by-Step Wizard
-```bash
+# Interactive Step-by-Step Wizard
 npm run ats:interactive
-# or
-npm run ats
-```
-
-### Optional: Use Cloud AI Providers
-If you want to use cloud LLMs instead of the default local transformer:
-
-```bash
-# Google Gemini
-GEMINI_API_KEY=your_key npm run ats -- -r resume.pdf -j jd.txt -p gemini
-
-# OpenAI GPT-4o
-OPENAI_API_KEY=your_key npm run ats -- -r resume.pdf -j jd.txt -p openai
-
-# Anthropic Claude
-ANTHROPIC_API_KEY=your_key npm run ats -- -r resume.pdf -j jd.txt -p claude
 ```
 
 ---
 
 ## 📋 CLI Flags Reference
 
-| Flag | Shorthand | Description |
-|---|---|---|
-| `--resume <path>` | `-r` | Path to resume file (`.txt`, `.pdf`, `.docx`, `.md`) |
-| `--jd <path>` | `-j` | Path to job description file (`.txt`, `.md`, `.pdf`) |
-| `--provider <name>` | `-p` | Provider: `transformer` (default/free), `gemini`, `openai`, `claude`, `ollama`, `groq` |
-| `--model <name>` | `-m` | Model name override |
-| `--output <path>` | `-o` | Export complete Markdown analysis report |
-| `--json <path>` | | Export structured report as JSON |
-| `--save-enhanced <path>` | | Export enhanced plain-text resume |
-| `--force-enhance` | `-f` | Force Phase 2 rewrite even if score is ≥70% |
-| `--interactive` | `-i` | Run interactive wizard mode |
-| `--raw` | | Output raw response without terminal formatting |
-| `--help` | `-h` | Display help screen |
+| Command | Flag | Shorthand | Description |
+|---|---|---|---|
+| `ats` | `--resume <path>` | `-r` | Path to resume file (`.pdf`, `.docx`, `.txt`, `.md`) |
+| `ats` | `--jd <path>` | `-j` | Path to job description file (`.txt`, `.md`, `.pdf`) |
+| `ats` | `--provider <name>` | `-p` | Provider: `transformer` (default/free), `gemini`, `openai`, `claude`, `ollama` |
+| `ats` | `--output <path>` | `-o` | Export complete Markdown analysis report |
+| `ats` | `--json <path>` | | Export structured report as JSON |
+| `ats` | `--save-enhanced <path>` | | Export enhanced plain-text resume |
+| `ats` | `--force-enhance` | `-f` | Force Phase 2 rewrite even if score is ≥70% |
+| `ats` | `--interactive` | `-i` | Run interactive wizard mode |
+| `parse-pdf` | `-o, --output <path>` | | Save extracted plain text to file |
+| `parse-pdf` | `--json` | | Output parsed structure & detected sections as JSON |
 
 ---
 
@@ -155,15 +148,17 @@ supercv/
 │   │   ├── index.ts           # Main Commander CLI entrypoint
 │   │   ├── interactive.ts     # Step-by-step interactive CLI wizard
 │   │   ├── llmClient.ts       # Multi-provider client (Transformers + LLMs)
+│   │   ├── parsePdf.ts        # PDF to TXT CLI tool & structure inspector
 │   │   ├── prompt.ts          # ATS System prompt & Phase templates
 │   │   └── transformerEngine.ts # 100% Local ONNX Transformer Engine
 │   ├── components/
-│   │   ├── AnalysisInput.tsx   # Web resume & JD upload/paste component
+│   │   ├── AnalysisInput.tsx   # Web resume & JD upload/paste with PDF flow
 │   │   └── AnalysisResults.tsx # Web score visualizer & report renderer
 │   ├── lib/
 │   │   └── supabase.ts        # Database client & TypeScript definitions
 │   ├── utils/
 │   │   ├── atsAnalyzer.ts     # Client-side heuristic analyzer
+│   │   ├── documentParser.ts  # Browser-side PDF.js & Word text extractor
 │   │   └── keywordExtractor.ts# Rule-based NLP extraction
 │   ├── App.tsx                # Main React App
 │   ├── index.css              # Tailwind styling

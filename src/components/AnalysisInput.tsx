@@ -1,5 +1,18 @@
 import { useState } from 'react';
-import { FileText, Briefcase, Upload, Sparkles, ClipboardPaste } from 'lucide-react';
+import {
+  FileText,
+  Briefcase,
+  Upload,
+  Sparkles,
+  ClipboardPaste,
+  CheckCircle2,
+  AlertCircle,
+  FileCheck,
+  Eye,
+  FileCode,
+  Check,
+} from 'lucide-react';
+import { parseDocument, type ParsedDocumentResult } from '../utils/documentParser';
 
 interface AnalysisInputProps {
   onAnalyze: (resumeText: string, jobDescription: string) => void;
@@ -11,63 +24,92 @@ type InputMode = 'text' | 'file';
 export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
-  const [resumeMode, setResumeMode] = useState<InputMode>('text');
+  const [resumeMode, setResumeMode] = useState<InputMode>('file');
   const [jdMode, setJdMode] = useState<InputMode>('text');
-  const [dragActive, setDragActive] = useState(false);
+  const [dragActiveResume, setDragActiveResume] = useState(false);
+  const [dragActiveJd, setDragActiveJd] = useState(false);
   const [error, setError] = useState('');
 
-  const handleFile = async (file: File, target: 'resume' | 'jd') => {
+  const [isParsingResume, setIsParsingResume] = useState(false);
+  const [isParsingJd, setIsParsingJd] = useState(false);
+  const [resumeMetadata, setResumeMetadata] = useState<ParsedDocumentResult | null>(null);
+  const [jdMetadata, setJdMetadata] = useState<ParsedDocumentResult | null>(null);
+  const [showRawResumeText, setShowRawResumeText] = useState(false);
+
+  const handleFileProcess = async (file: File, target: 'resume' | 'jd') => {
     setError('');
 
-    if (!file.type.includes('text') && !file.name.endsWith('.txt')) {
-      setError('Please upload a plain text file (.txt)');
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const validExts = ['pdf', 'docx', 'txt', 'md'];
+
+    if (!validExts.includes(ext || '')) {
+      setError('Please upload a PDF (.pdf), Word (.docx), or Text (.txt, .md) file.');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
+    if (file.size > 15 * 1024 * 1024) {
+      setError('File size must be less than 15MB');
       return;
+    }
+
+    if (target === 'resume') {
+      setIsParsingResume(true);
+    } else {
+      setIsParsingJd(true);
     }
 
     try {
-      const content = await file.text();
-      if (content.trim().length === 0) {
-        setError('File is empty');
+      const result = await parseDocument(file);
+      if (result.text.trim().length === 0) {
+        setError('Could not extract text from the file. It might be scanned/image-only.');
         return;
       }
+
       if (target === 'resume') {
-        setResumeText(content);
+        setResumeText(result.text);
+        setResumeMetadata(result);
       } else {
-        setJobDescription(content);
+        setJobDescription(result.text);
+        setJdMetadata(result);
       }
-    } catch {
-      setError('Error reading file');
+    } catch (err: unknown) {
+      setError(`Error parsing ${target === 'resume' ? 'resume' : 'job description'}: ${(err as Error).message}`);
+    } finally {
+      if (target === 'resume') {
+        setIsParsingResume(false);
+      } else {
+        setIsParsingJd(false);
+      }
     }
   };
 
-  const handleDrag = (e: React.DragEvent) => {
+  const handleDrag = (e: React.DragEvent, target: 'resume' | 'jd') => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
+      if (target === 'resume') setDragActiveResume(true);
+      else setDragActiveJd(true);
     } else if (e.type === 'dragleave') {
-      setDragActive(false);
+      if (target === 'resume') setDragActiveResume(false);
+      else setDragActiveJd(false);
     }
   };
 
   const handleDrop = (e: React.DragEvent, target: 'resume' | 'jd') => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
+    if (target === 'resume') setDragActiveResume(false);
+    else setDragActiveJd(false);
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0], target);
+      handleFileProcess(e.dataTransfer.files[0], target);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, target: 'resume' | 'jd') => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0], target);
+      handleFileProcess(e.target.files[0], target);
     }
   };
 
@@ -80,8 +122,10 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
       }
       if (target === 'resume') {
         setResumeText(text);
+        setResumeMetadata(null);
       } else {
         setJobDescription(text);
+        setJdMetadata(null);
       }
     } catch {
       setError('Unable to read clipboard — please paste manually');
@@ -106,6 +150,8 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
   const handleClear = () => {
     setResumeText('');
     setJobDescription('');
+    setResumeMetadata(null);
+    setJdMetadata(null);
     setError('');
   };
 
@@ -114,181 +160,283 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Resume Input */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-blue-50 to-blue-50/50 border-b border-gray-100">
-            <FileText className="w-5 h-5 text-blue-600" />
-            <h3 className="font-semibold text-gray-800">Your Resume</h3>
-            <div className="ml-auto flex gap-1">
-              <button
-                onClick={() => setResumeMode('text')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  resumeMode === 'text'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Paste
-              </button>
-              <button
-                onClick={() => setResumeMode('file')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  resumeMode === 'file'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Upload
-              </button>
+        {/* Resume Input & PDF Parsing Flow */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-blue-50 to-blue-50/50 border-b border-gray-100">
+              <FileText className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800">Your Resume (CV)</h3>
+              <div className="ml-auto flex gap-1">
+                <button
+                  onClick={() => setResumeMode('file')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    resumeMode === 'file'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Upload PDF / Word
+                </button>
+                <button
+                  onClick={() => setResumeMode('text')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    resumeMode === 'text'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Paste Text
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="p-5">
-            {resumeMode === 'text' ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Paste your resume text below</p>
-                  <button
-                    onClick={() => handlePaste('resume')}
-                    className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            <div className="p-5 space-y-4">
+              {resumeMode === 'file' ? (
+                <div>
+                  <div
+                    className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+                      dragActiveResume
+                        ? 'border-blue-500 bg-blue-50/80 scale-[0.99]'
+                        : 'border-gray-300 hover:border-blue-400 bg-gray-50/50'
+                    } ${isAnalyzing || isParsingResume ? 'opacity-50 pointer-events-none' : ''}`}
+                    onDragEnter={(e) => handleDrag(e, 'resume')}
+                    onDragLeave={(e) => handleDrag(e, 'resume')}
+                    onDragOver={(e) => handleDrag(e, 'resume')}
+                    onDrop={(e) => handleDrop(e, 'resume')}
                   >
-                    <ClipboardPaste className="w-3.5 h-3.5" />
-                    Paste from clipboard
-                  </button>
+                    <input
+                      type="file"
+                      id="resume-upload"
+                      className="hidden"
+                      accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                      onChange={(e) => handleFileChange(e, 'resume')}
+                      disabled={isAnalyzing || isParsingResume}
+                    />
+                    <label htmlFor="resume-upload" className="cursor-pointer flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-3 text-blue-600 shadow-sm">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800 mb-1">
+                        Drop your Resume (PDF / DOCX / TXT)
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Supports PDF, Word (.docx), and Text formats (max 15MB)
+                      </p>
+                    </label>
+
+                    {isParsingResume && (
+                      <div className="mt-4 flex items-center justify-center gap-2 text-xs text-blue-600 font-medium animate-pulse">
+                        <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        Extracting PDF structure to plain text...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Parsed Structure Flow */}
+                  {resumeMetadata && (
+                    <div className="mt-4 p-4 bg-blue-50/50 border border-blue-200/80 rounded-xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileCheck className="w-4 h-4 text-emerald-600" />
+                          <span className="text-xs font-bold text-gray-800 truncate max-w-[200px]">
+                            {resumeMetadata.fileName}
+                          </span>
+                          <span className="text-[10px] bg-blue-100 text-blue-800 font-medium px-2 py-0.5 rounded-full uppercase">
+                            {resumeMetadata.fileType}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-gray-500 font-medium">
+                          {resumeMetadata.pageCount ? `${resumeMetadata.pageCount} page(s) • ` : ''}
+                          {resumeMetadata.wordCount} words
+                        </span>
+                      </div>
+
+                      {/* Detected Sections Flow */}
+                      <div className="space-y-1.5 pt-1">
+                        <p className="text-[11px] font-semibold text-gray-600 uppercase tracking-wider">
+                          Detected CV Sections (ATS Flow):
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {resumeMetadata.detectedSections.map((sec, idx) => (
+                            <span
+                              key={idx}
+                              className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md font-medium ${
+                                sec.found
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                  : 'bg-gray-100 text-gray-400 border border-gray-200'
+                              }`}
+                            >
+                              {sec.found ? <Check className="w-3 h-3 text-emerald-600" /> : '–'}
+                              {sec.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-blue-100 flex items-center justify-between">
+                        <button
+                          onClick={() => setShowRawResumeText(!showRawResumeText)}
+                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          {showRawResumeText ? 'Hide Parsed Text' : 'Review / Edit Parsed Text'}
+                        </button>
+                        <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Ready for ATS Analysis
+                        </span>
+                      </div>
+
+                      {showRawResumeText && (
+                        <textarea
+                          value={resumeText}
+                          onChange={(e) => setResumeText(e.target.value)}
+                          className="w-full h-44 p-2.5 text-xs text-gray-700 font-mono bg-white border border-blue-200 rounded-lg resize-none outline-none focus:ring-1 focus:ring-blue-500"
+                          placeholder="Extracted plain text..."
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
-                <textarea
-                  value={resumeText}
-                  onChange={(e) => setResumeText(e.target.value)}
-                  placeholder="Paste your resume content here..."
-                  className="w-full h-64 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  disabled={isAnalyzing}
-                />
-                <p className="text-xs text-gray-400 text-right">{resumeText.length} characters</p>
-              </div>
-            ) : (
-              <div
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-                  dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
-                } ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={(e) => handleDrop(e, 'resume')}
-              >
-                <input
-                  type="file"
-                  id="resume-upload"
-                  className="hidden"
-                  accept=".txt,text/plain"
-                  onChange={(e) => handleFileChange(e, 'resume')}
-                  disabled={isAnalyzing}
-                />
-                <label htmlFor="resume-upload" className="cursor-pointer flex flex-col items-center">
-                  <Upload className="w-12 h-12 text-gray-400 mb-3" />
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    Drop resume or click to browse
-                  </p>
-                  <p className="text-xs text-gray-500">Plain text (.txt), max 5MB</p>
-                </label>
-                {resumeText && (
-                  <p className="mt-3 text-xs text-green-600 font-medium">
-                    Loaded {resumeText.length} characters
-                  </p>
-                )}
-              </div>
-            )}
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-500">Paste your resume text below</p>
+                    <button
+                      onClick={() => handlePaste('resume')}
+                      className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      <ClipboardPaste className="w-3.5 h-3.5" />
+                      Paste from clipboard
+                    </button>
+                  </div>
+                  <textarea
+                    value={resumeText}
+                    onChange={(e) => setResumeText(e.target.value)}
+                    placeholder="Paste your resume plain text content here..."
+                    className="w-full h-64 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    disabled={isAnalyzing}
+                  />
+                  <p className="text-xs text-gray-400 text-right">{resumeText.length} characters</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Job Description Input */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-emerald-50 to-emerald-50/50 border-b border-gray-100">
-            <Briefcase className="w-5 h-5 text-emerald-600" />
-            <h3 className="font-semibold text-gray-800">Job Description</h3>
-            <div className="ml-auto flex gap-1">
-              <button
-                onClick={() => setJdMode('text')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  jdMode === 'text'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Paste
-              </button>
-              <button
-                onClick={() => setJdMode('file')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  jdMode === 'file'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Upload
-              </button>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-emerald-50 to-emerald-50/50 border-b border-gray-100">
+              <Briefcase className="w-5 h-5 text-emerald-600" />
+              <h3 className="font-semibold text-gray-800">Job Description</h3>
+              <div className="ml-auto flex gap-1">
+                <button
+                  onClick={() => setJdMode('text')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    jdMode === 'text'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Paste Text
+                </button>
+                <button
+                  onClick={() => setJdMode('file')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    jdMode === 'file'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Upload File
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="p-5">
-            {jdMode === 'text' ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Paste the job posting below</p>
-                  <button
-                    onClick={() => handlePaste('jd')}
-                    className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-                  >
-                    <ClipboardPaste className="w-3.5 h-3.5" />
-                    Paste from clipboard
-                  </button>
+            <div className="p-5">
+              {jdMode === 'text' ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-500">Paste the job posting below</p>
+                    <button
+                      onClick={() => handlePaste('jd')}
+                      className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                    >
+                      <ClipboardPaste className="w-3.5 h-3.5" />
+                      Paste from clipboard
+                    </button>
+                  </div>
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    placeholder="Paste the job description here..."
+                    className="w-full h-64 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    disabled={isAnalyzing}
+                  />
+                  <p className="text-xs text-gray-400 text-right">{jobDescription.length} characters</p>
                 </div>
-                <textarea
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder="Paste the job description here..."
-                  className="w-full h-64 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                  disabled={isAnalyzing}
-                />
-                <p className="text-xs text-gray-400 text-right">{jobDescription.length} characters</p>
-              </div>
-            ) : (
-              <div
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-                  dragActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 hover:border-gray-400'
-                } ${isAnalyzing ? 'opacity-50 pointer-events-none' : ''}`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={(e) => handleDrop(e, 'jd')}
-              >
-                <input
-                  type="file"
-                  id="jd-upload"
-                  className="hidden"
-                  accept=".txt,text/plain"
-                  onChange={(e) => handleFileChange(e, 'jd')}
-                  disabled={isAnalyzing}
-                />
-                <label htmlFor="jd-upload" className="cursor-pointer flex flex-col items-center">
-                  <Upload className="w-12 h-12 text-gray-400 mb-3" />
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    Drop job description or click to browse
-                  </p>
-                  <p className="text-xs text-gray-500">Plain text (.txt), max 5MB</p>
-                </label>
-                {jobDescription && (
-                  <p className="mt-3 text-xs text-green-600 font-medium">
-                    Loaded {jobDescription.length} characters
-                  </p>
-                )}
-              </div>
-            )}
+              ) : (
+                <div>
+                  <div
+                    className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+                      dragActiveJd
+                        ? 'border-emerald-500 bg-emerald-50/80 scale-[0.99]'
+                        : 'border-gray-300 hover:border-emerald-400 bg-gray-50/50'
+                    } ${isAnalyzing || isParsingJd ? 'opacity-50 pointer-events-none' : ''}`}
+                    onDragEnter={(e) => handleDrag(e, 'jd')}
+                    onDragLeave={(e) => handleDrag(e, 'jd')}
+                    onDragOver={(e) => handleDrag(e, 'jd')}
+                    onDrop={(e) => handleDrop(e, 'jd')}
+                  >
+                    <input
+                      type="file"
+                      id="jd-upload"
+                      className="hidden"
+                      accept=".pdf,.docx,.txt,.md,text/plain"
+                      onChange={(e) => handleFileChange(e, 'jd')}
+                      disabled={isAnalyzing || isParsingJd}
+                    />
+                    <label htmlFor="jd-upload" className="cursor-pointer flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-3 text-emerald-600 shadow-sm">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800 mb-1">
+                        Drop job description file or browse
+                      </p>
+                      <p className="text-xs text-gray-500">Supports TXT, PDF, DOCX (max 15MB)</p>
+                    </label>
+
+                    {isParsingJd && (
+                      <div className="mt-4 flex items-center justify-center gap-2 text-xs text-emerald-600 font-medium animate-pulse">
+                        <div className="w-3.5 h-3.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                        Extracting Job Description text...
+                      </div>
+                    )}
+                  </div>
+
+                  {jdMetadata && (
+                    <div className="mt-4 p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileCode className="w-4 h-4 text-emerald-600" />
+                        <span className="text-xs font-semibold text-gray-800 truncate max-w-[200px]">
+                          {jdMetadata.fileName}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-emerald-700 font-medium">
+                        {jdMetadata.wordCount} words extracted
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <p className="text-red-700 text-sm">{error}</p>
         </div>
       )}
@@ -297,34 +445,33 @@ export function AnalysisInput({ onAnalyze, isAnalyzing }: AnalysisInputProps) {
         <button
           onClick={handleClear}
           disabled={isAnalyzing}
-          className="px-6 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+          className="px-6 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
         >
-          Clear
+          Clear All
         </button>
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="flex items-center gap-2 px-8 py-3 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+          className="flex items-center gap-2 px-8 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg shadow-blue-500/20"
         >
           {isAnalyzing ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Analyzing...
+              Running ATS Analysis...
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              Analyze Resume
+              Analyze ATS Compatibility
             </>
           )}
         </button>
       </div>
 
-      <div className="text-center text-sm text-gray-500 max-w-2xl mx-auto">
+      <div className="text-center text-xs text-gray-500 max-w-2xl mx-auto">
         <p>
-          Paste your resume and the target job description, then click Analyze. The tool scores
-          your resume against the job posting using a 5-category ATS rubric and automatically
-          enhances it if the score is below 70%.
+          Drop your PDF or Word resume to extract the plain-text structure and inspect detected ATS sections.
+          Scoring is executed across 5 weighted categories with automatic Phase 2 enhancement if under 70%.
         </p>
       </div>
     </div>
