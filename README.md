@@ -1,4 +1,4 @@
-# SuperCV
+# SuperCV 📄✨
 
 SuperCV is an ATS (Applicant Tracking System) resume analyzer, auto-enhancer, grammar checker, and resume critique tool. It scores resumes against job descriptions using a 5-category weighted rubric modeled after systems like Workday, Taleo, Greenhouse, iCIMS, and Lever. When a score falls below 70%, it automatically rewrites and optimizes the resume.
 
