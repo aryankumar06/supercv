@@ -1,10 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 export interface Suggestion {
   category: string;
   issue: string;
@@ -39,23 +32,4 @@ export interface AnalysisResult {
   enhancement_changes: EnhancementChange[] | null;
   enhanced_score: number | null;
   manual_actions: string[] | null;
-}
-
-export interface ResumeAnalysis {
-  id: string;
-  resume_text: string;
-  job_description: string;
-  ats_score: number;
-  category_scores: CategoryScores;
-  matched_keywords: string[];
-  missing_keywords: string[];
-  formatting_red_flags: string[];
-  top_issues: string[];
-  suggestions: Suggestion[];
-  enhanced_resume: string | null;
-  enhancement_changes: EnhancementChange[] | null;
-  enhanced_score: number | null;
-  manual_actions: string[] | null;
-  verdict: string;
-  created_at: string;
 }

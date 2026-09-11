@@ -4,8 +4,7 @@ import { AnalysisInput } from './components/AnalysisInput';
 import { AnalysisResults } from './components/AnalysisResults';
 import { TierScreenerView } from './components/TierScreenerView';
 import { analyzeResume } from './utils/atsAnalyzer';
-import { supabase } from './lib/supabase';
-import type { AnalysisResult } from './lib/supabase';
+import type { AnalysisResult } from './types/analysis';
 
 function App() {
   const [activeView, setActiveView] = useState<'ats' | 'tierScreener'>('ats');
@@ -40,32 +39,6 @@ function App() {
 
     try {
       const analysis = analyzeResume(resumeText, jobDescription);
-
-      try {
-        const { error } = await supabase.from('resume_analyses').insert({
-          resume_text: resumeText,
-          job_description: jobDescription,
-          ats_score: analysis.ats_score,
-          category_scores: analysis.category_scores,
-          matched_keywords: analysis.matched_keywords,
-          missing_keywords: analysis.missing_keywords,
-          formatting_red_flags: analysis.formatting_red_flags,
-          top_issues: analysis.top_issues,
-          suggestions: analysis.suggestions,
-          enhanced_resume: analysis.enhanced_resume,
-          enhancement_changes: analysis.enhancement_changes,
-          enhanced_score: analysis.enhanced_score,
-          manual_actions: analysis.manual_actions,
-          verdict: analysis.verdict,
-        });
-
-        if (error) {
-          console.error('Error saving analysis:', error);
-        }
-      } catch (dbError) {
-        console.error('Database error:', dbError);
-      }
-
       setResult(analysis);
     } catch (error) {
       console.error('Error analyzing resume:', error);
@@ -76,6 +49,8 @@ function App() {
 
   const handleReset = () => {
     setResult(null);
+    setCurrentResume('');
+    setCurrentJd('');
   };
 
   return (

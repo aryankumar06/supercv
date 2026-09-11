@@ -10,7 +10,7 @@ import type {
   CategoryScores,
   AnalysisResult,
   EnhancementChange,
-} from '../lib/supabase';
+} from '../types/analysis';
 
 const WEIGHTS = {
   keyword_match: 0.35,

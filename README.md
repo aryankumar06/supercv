@@ -161,8 +161,8 @@ supercv/
 │   │   ├── AnalysisResults.tsx # ATS report component
 │   │   ├── GrammarCheckerModal.tsx # Grammar checker modal
 │   │   └── ResumeRoastModal.tsx# Roast modal component
-│   ├── lib/
-│   │   └── supabase.ts        # Database client & types
+│   ├── types/
+│   │   └── analysis.ts        # ATS analysis type definitions
 │   ├── utils/
 │   │   ├── atsAnalyzer.ts     # ATS scoring logic
 │   │   ├── documentParser.ts  # Browser-side PDF/Word parser
