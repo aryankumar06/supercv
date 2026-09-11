@@ -13,7 +13,7 @@ import {
   Flame,
   SpellCheck,
 } from 'lucide-react';
-import type { EnhancementChange, AnalysisResult } from '../lib/supabase';
+import type { EnhancementChange, AnalysisResult } from '../types/analysis';
 import { roastResume, type ResumeRoastResult } from '../utils/resumeRoaster';
 import { ResumeRoastModal } from './ResumeRoastModal';
 import { checkGrammar, type GrammarCheckResult } from '../utils/grammarChecker';
